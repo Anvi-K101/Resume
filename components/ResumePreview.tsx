@@ -15,7 +15,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
   const size = FONT_SIZES[style.fontSize];
 
   const sectionStyle = {
-    marginBottom: `${style.sectionSpacing * 0.75}rem` // Slightly tighter for better fitting
+    marginBottom: `${style.sectionSpacing * 0.6}rem` // Tightened for multi-page efficiency
   };
 
   const textStyle = {
@@ -24,7 +24,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
 
   const renderSectionHeader = (title: string, isSidebar: boolean = false) => (
     <h2 
-      className={`font-bold uppercase tracking-widest border-b pb-1 mb-2.5 ${isSidebar ? 'text-[10px]' : size.h2}`} 
+      className={`font-bold uppercase tracking-widest border-b pb-1 mb-2.5 ${isSidebar ? 'text-[9px]' : size.h2}`} 
       style={{ borderColor: `${style.accentColor}30`, color: style.accentColor }}
     >
       {title}
@@ -130,22 +130,23 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
   );
 
   const renderSidebar = () => (
-    <div className={`relative flex bg-white min-h-[1120px] print:min-h-0 shadow-sm print:shadow-none ${fontClass} ${size.base}`}>
-      {/* 
-        To fix sidebar background bleed in multi-page PDF generation, 
-        we use an absolute background layer that spans the full height.
-      */}
-      <div className="absolute top-0 left-0 bottom-0 w-[260px] bg-gray-50 border-r border-gray-100 z-0"></div>
-      
+    <div 
+      className={`relative flex bg-white min-h-[1120px] print:min-h-0 shadow-sm print:shadow-none ${fontClass} ${size.base}`}
+      style={{
+        // Gradient background ensures the sidebar color is present on every PDF page
+        background: `linear-gradient(to right, #f9fafb 0%, #f9fafb 280px, #ffffff 280px, #ffffff 100%)`
+      }}
+    >
       {/* Sidebar Content */}
-      <aside className="w-[260px] p-8 print:p-6 flex flex-col shrink-0 gap-7 z-10 relative">
+      <aside className="w-[280px] p-8 print:p-6 flex flex-col shrink-0 gap-6 z-10 relative">
         <div className="mb-2">
           <h1 className="text-2xl font-bold mb-4 tracking-tight leading-tight" style={{ color: style.accentColor }}>{personalInfo.fullName}</h1>
-          <div className="space-y-2.5 text-[11px] text-gray-600">
+          <div className="space-y-3 text-[10px] text-gray-600">
             {personalInfo.email && <div className="break-all"><span className="font-bold text-black text-[9px] uppercase tracking-wider block mb-0.5">Email</span>{personalInfo.email}</div>}
             {personalInfo.phone && <div><span className="font-bold text-black text-[9px] uppercase tracking-wider block mb-0.5">Phone</span>{personalInfo.phone}</div>}
             {personalInfo.location && <div><span className="font-bold text-black text-[9px] uppercase tracking-wider block mb-0.5">Location</span>{personalInfo.location}</div>}
             {personalInfo.linkedin && <div className="break-all"><span className="font-bold text-black text-[9px] uppercase tracking-wider block mb-0.5">LinkedIn</span>{personalInfo.linkedin}</div>}
+            {personalInfo.website && <div className="break-all"><span className="font-bold text-black text-[9px] uppercase tracking-wider block mb-0.5">Portfolio</span>{personalInfo.website}</div>}
           </div>
         </div>
 
@@ -155,18 +156,18 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
             <div className="space-y-4">
               {projects.map((proj) => (
                 <div key={proj.id} className="mb-3">
-                  <div className="flex items-center gap-1.5 mb-0.5">
-                    <p className="text-xs font-bold text-gray-800">{proj.name}</p>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <p className="text-[11px] font-bold text-gray-800">{proj.name}</p>
                     {proj.link && (
                       <a href={proj.link.startsWith('http') ? proj.link : `https://${proj.link}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 transition-colors">
                         <ExternalLink className="w-3 h-3" />
                       </a>
                     )}
                   </div>
-                  <p className="text-[10px] text-gray-500 leading-tight mb-1">{proj.description}</p>
+                  <p className="text-[10px] text-gray-500 leading-tight mb-1.5">{proj.description}</p>
                   {proj.link && (
-                    <a href={proj.link.startsWith('http') ? proj.link : `https://${proj.link}`} target="_blank" rel="noopener noreferrer" className="text-[9px] text-blue-600 block truncate italic font-medium hover:underline">
-                      {proj.link.replace(/^https?:\/\//, '').replace(/^www\./, '')}
+                    <a href={proj.link.startsWith('http') ? proj.link : `https://${proj.link}`} target="_blank" rel="noopener noreferrer" className="text-[9px] text-blue-600 block break-all italic font-medium hover:underline">
+                      {proj.link}
                     </a>
                   )}
                 </div>
@@ -206,10 +207,10 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
 
         {skills.length > 0 && (
           <div className="print:break-inside-avoid">
-            {renderSectionHeader("Core Expertise", true)}
+            {renderSectionHeader("Expertise", true)}
             {skills.map((skill) => (
               <div key={skill.id} className="mb-3">
-                <p className="text-[10px] font-bold text-gray-800 mb-0.5 uppercase tracking-tighter">{skill.category}</p>
+                <p className="text-[9px] font-bold text-gray-800 mb-0.5 uppercase tracking-tighter">{skill.category}</p>
                 <p className="text-[10px] text-gray-500 leading-tight">{skill.items.join(', ')}</p>
               </div>
             ))}
@@ -221,13 +222,13 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
       <main className="flex-1 p-10 print:p-8 flex flex-col min-h-full bg-white relative z-10">
         {personalInfo.summary && (
           <section className="mb-7 print:break-inside-avoid">
-            {renderSectionHeader("Executive Summary")}
+            {renderSectionHeader("Profile")}
             <p className="text-gray-700 leading-relaxed text-[13px]" style={textStyle}>{personalInfo.summary}</p>
           </section>
         )}
 
         <section className="mb-7 flex-1">
-          {renderSectionHeader("Professional Experience")}
+          {renderSectionHeader("Professional History")}
           <div className="space-y-6">
             {experience.map((exp) => (
               <div key={exp.id} className="print:break-inside-avoid">
@@ -238,7 +239,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
                   </div>
                   <span className="text-[9px] font-bold text-gray-400 shrink-0 ml-4 uppercase tracking-tighter bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{exp.startDate} – {exp.endDate}</span>
                 </div>
-                <ul className="list-disc ml-5 space-y-0.5 text-gray-600 text-[13px]" style={textStyle}>
+                <ul className="list-disc ml-5 space-y-0.5 text-gray-600 text-[12.5px]" style={textStyle}>
                   {exp.description.map((bullet, idx) => bullet.trim() && (
                     <li key={idx} className="print:break-inside-avoid pl-1">{bullet}</li>
                   ))}
@@ -251,9 +252,9 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
         {(certifications?.length || 0) > 0 && (
           <section className="print:break-inside-avoid pt-5 border-t border-gray-100 mt-4">
             {renderSectionHeader("Certifications")}
-            <div className="flex flex-wrap gap-x-3 gap-y-1.5">
+            <div className="flex flex-wrap gap-x-3 gap-y-2">
               {certifications?.map((cert, idx) => cert.trim() && (
-                <div key={idx} className="text-[10px] text-gray-600 font-medium px-2 py-0.5 bg-gray-50 rounded border border-gray-100">
+                <div key={idx} className="text-[10px] text-gray-600 font-medium px-2 py-1 bg-gray-50 rounded border border-gray-100 shadow-sm">
                    {cert}
                 </div>
               ))}
@@ -279,6 +280,8 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
         #resume-document {
           position: relative;
           box-sizing: border-box;
+          max-height: 4480px; /* Approximately 4 pages max at A4 ratio */
+          overflow: hidden;
         }
         section {
           break-inside: avoid !important;
@@ -288,9 +291,13 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
           break-inside: avoid !important;
           page-break-inside: avoid !important;
         }
-        /* Ensure background graphics are included in print by library */
-        -webkit-print-color-adjust: exact;
-        print-color-adjust: exact;
+        /* Preserve sidebar background in PDF */
+        @media print {
+          #resume-document {
+            -webkit-print-color-adjust: exact !important;
+            print-color-adjust: exact !important;
+          }
+        }
       `}</style>
     </div>
   );

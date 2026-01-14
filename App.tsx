@@ -88,29 +88,27 @@ const App: React.FC = () => {
 
     setIsDownloading(true);
 
-    // High fidelity settings to ensure 2-3 page limit and visual accuracy
+    // High fidelity settings for pixel-perfect match to the 816px preview
+    // FIX: Use 'as const' to narrow literal types for html2pdf options to avoid TS2345
     const opt = {
       margin: 0,
       filename: `${data.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`,
-      image: { type: 'jpeg', quality: 1.0 },
+      image: { type: 'jpeg' as const, quality: 1.0 },
       html2canvas: { 
-        scale: 2.5, // Increased for sharper text
+        scale: 2.5, // Crisp text and graphics
         useCORS: true, 
         letterRendering: true,
         scrollY: 0,
-        windowWidth: 816 // Fixed width for standard A4 pixel density
+        windowWidth: 816 // Essential: Pins rendering to the exact width of our resume container
       },
-      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait', compress: true },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+      jsPDF: { unit: 'in' as const, format: 'a4' as const, orientation: 'portrait' as const, compress: true },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] as const }
     };
 
     try {
-      // Small pause to settle layout before snapshot
-      await new Promise(resolve => setTimeout(resolve, 300));
-      const worker = html2pdf().set(opt).from(element).toPdf();
-      
-      // Hook to check page count - though library handling is automatic, we ensure the save trigger
-      await worker.save();
+      // 500ms delay ensures fonts and layout are fully painted
+      await new Promise(resolve => setTimeout(resolve, 500));
+      await html2pdf().set(opt).from(element).save();
     } catch (err) {
       console.error("PDF generation error:", err);
       alert("Failed to generate PDF. Please try again.");
@@ -250,7 +248,7 @@ const App: React.FC = () => {
             className={`flex items-center gap-3 bg-black text-white px-10 py-4 rounded-[1.25rem] text-[10px] font-black hover:bg-gray-800 transition-all shadow-2xl shadow-black/10 uppercase tracking-[0.2em] transform active:scale-95 ${isDownloading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {isDownloading ? (
-              <><RefreshCw className="w-4 h-4 animate-spin" /> Finalizing PDF...</>
+              <><RefreshCw className="w-4 h-4 animate-spin" /> Rendering PDF...</>
             ) : (
               <><Download className="w-4 h-4" /> Download PDF</>
             )}
