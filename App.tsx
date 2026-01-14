@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import { 
   Download, 
   RefreshCw, 
@@ -15,6 +15,8 @@ import {
   DollarSign, 
   PenTool 
 } from 'lucide-react';
+// @ts-ignore
+import html2pdf from 'html2pdf.js';
 import FileUploader from './components/FileUploader';
 import EditorPanel from './components/EditorPanel';
 import ResumePreview from './components/ResumePreview';
@@ -28,6 +30,7 @@ const App: React.FC = () => {
   const [data, setData] = useState<ResumeData>(INITIAL_RESUME_DATA);
   const [style, setStyle] = useState<ResumeStyle>(INITIAL_STYLE);
   const [isProcessing, setIsProcessing] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
   const [progress, setProgress] = useState(0);
   const [error, setError] = useState<string | null>(null);
 
@@ -78,8 +81,34 @@ const App: React.FC = () => {
     setView('editor');
   };
 
-  const handleExportPDF = () => {
-    window.print();
+  const handleExportPDF = async () => {
+    const element = document.getElementById('resume-document');
+    if (!element) return;
+
+    setIsDownloading(true);
+
+    const opt = {
+      margin: 0,
+      filename: `${data.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`,
+      image: { type: 'jpeg', quality: 0.98 },
+      html2canvas: { 
+        scale: 2, 
+        useCORS: true, 
+        letterRendering: true,
+        scrollY: 0
+      },
+      jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
+    };
+
+    try {
+      await html2pdf().set(opt).from(element).save();
+    } catch (err) {
+      console.error("PDF generation error:", err);
+      alert("Failed to generate PDF. Please try again or use the browser's print option (Ctrl+P).");
+    } finally {
+      setIsDownloading(false);
+    }
   };
 
   const startOver = () => {
@@ -209,9 +238,14 @@ const App: React.FC = () => {
           </div>
           <button 
             onClick={handleExportPDF}
-            className="flex items-center gap-3 bg-black text-white px-10 py-4 rounded-[1.25rem] text-[10px] font-black hover:bg-gray-800 transition-all shadow-2xl shadow-black/10 uppercase tracking-[0.2em] transform active:scale-95"
+            disabled={isDownloading}
+            className={`flex items-center gap-3 bg-black text-white px-10 py-4 rounded-[1.25rem] text-[10px] font-black hover:bg-gray-800 transition-all shadow-2xl shadow-black/10 uppercase tracking-[0.2em] transform active:scale-95 ${isDownloading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
-            <Download className="w-4 h-4" /> Export Document
+            {isDownloading ? (
+              <><RefreshCw className="w-4 h-4 animate-spin" /> Generating File...</>
+            ) : (
+              <><Download className="w-4 h-4" /> Download PDF</>
+            )}
           </button>
         </div>
       </header>
@@ -265,43 +299,6 @@ const App: React.FC = () => {
             margin: 0;
             padding: 0;
             width: 100%;
-          }
-          #root {
-            height: auto;
-            min-height: auto;
-          }
-          body * { 
-            visibility: hidden; 
-            background: white !important; 
-            print-color-adjust: exact; 
-            -webkit-print-color-adjust: exact;
-          }
-          #resume-document, #resume-document * { 
-            visibility: visible; 
-          }
-          #resume-document {
-            position: absolute !important;
-            left: 0 !important;
-            top: 0 !important;
-            width: 100% !important;
-            height: auto !important;
-            min-height: auto !important;
-            box-shadow: none !important;
-            border: none !important;
-            margin: 0 !important;
-            padding: 0 !important;
-            display: block !important;
-          }
-          .no-print { display: none !important; }
-          
-          /* Prevent items from being cut off between pages */
-          section, div[key], li {
-            break-inside: avoid;
-            page-break-inside: avoid;
-          }
-          h1, h2, h3 {
-            break-after: avoid;
-            page-break-after: avoid;
           }
         }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
