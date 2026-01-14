@@ -88,23 +88,25 @@ const App: React.FC = () => {
 
     setIsDownloading(true);
 
-    // Optimized for 2-3 pages fitting
+    // Optimized for 2-3 pages fitting and clickable links
     const opt = {
       margin: 0,
       filename: `${data.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { 
-        scale: 2.5, // Higher scale for extreme text clarity
+        scale: 2, 
         useCORS: true, 
         letterRendering: true,
         scrollY: 0,
-        windowWidth: 816 // Standard A4 width in pixels at 96dpi
+        windowWidth: 816 // Forces standard pixel width for consistent A4 conversion
       },
       jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] }
     };
 
     try {
+      // Small delay to ensure any dynamic rendering is settled
+      await new Promise(resolve => setTimeout(resolve, 200));
       await html2pdf().set(opt).from(element).save();
     } catch (err) {
       console.error("PDF generation error:", err);
@@ -302,14 +304,6 @@ const App: React.FC = () => {
             margin: 0;
             padding: 0;
             width: 100%;
-          }
-          /* Custom print rules to handle 2-3 pages better */
-          section, .print:break-inside-avoid {
-            break-inside: avoid;
-            page-break-inside: avoid;
-          }
-          aside {
-            height: 100%;
           }
         }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
