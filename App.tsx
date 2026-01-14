@@ -88,30 +88,30 @@ const App: React.FC = () => {
 
     setIsDownloading(true);
 
-    // High fidelity settings for pixel-perfect match to the 816px preview
-    // FIX: Use 'as const' to narrow literal types for html2pdf options to avoid TS2345
+    // Ultra-high fidelity settings for a professional finish
     const opt = {
       margin: 0,
-      filename: `${data.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`,
+      filename: `${data.personalInfo.fullName.replace(/\s+/g, '_')}_Professional_Resume.pdf`,
       image: { type: 'jpeg' as const, quality: 1.0 },
       html2canvas: { 
-        scale: 2.5, // Crisp text and graphics
+        scale: 3, // Very high scale for crisp typography and lines
         useCORS: true, 
         letterRendering: true,
         scrollY: 0,
-        windowWidth: 816 // Essential: Pins rendering to the exact width of our resume container
+        windowWidth: 816, // Pins rendering precisely to the resume container's width
+        backgroundColor: '#ffffff'
       },
       jsPDF: { unit: 'in' as const, format: 'a4' as const, orientation: 'portrait' as const, compress: true },
       pagebreak: { mode: ['avoid-all', 'css', 'legacy'] as const }
     };
 
     try {
-      // 500ms delay ensures fonts and layout are fully painted
-      await new Promise(resolve => setTimeout(resolve, 500));
+      // 800ms delay ensures complex layouts and external font weights are fully rendered
+      await new Promise(resolve => setTimeout(resolve, 800));
       await html2pdf().set(opt).from(element).save();
     } catch (err) {
       console.error("PDF generation error:", err);
-      alert("Failed to generate PDF. Please try again.");
+      alert("Professional export failed. Please try again.");
     } finally {
       setIsDownloading(false);
     }
@@ -248,7 +248,7 @@ const App: React.FC = () => {
             className={`flex items-center gap-3 bg-black text-white px-10 py-4 rounded-[1.25rem] text-[10px] font-black hover:bg-gray-800 transition-all shadow-2xl shadow-black/10 uppercase tracking-[0.2em] transform active:scale-95 ${isDownloading ? 'opacity-50 cursor-not-allowed' : ''}`}
           >
             {isDownloading ? (
-              <><RefreshCw className="w-4 h-4 animate-spin" /> Rendering PDF...</>
+              <><RefreshCw className="w-4 h-4 animate-spin" /> Finalizing PDF...</>
             ) : (
               <><Download className="w-4 h-4" /> Download PDF</>
             )}
