@@ -88,17 +88,17 @@ const App: React.FC = () => {
 
     setIsDownloading(true);
 
-    // Ultra-high fidelity settings for a professional finish
+    // High fidelity settings optimized for 2-3 pages
     const opt = {
       margin: 0,
-      filename: `${data.personalInfo.fullName.replace(/\s+/g, '_')}_Professional_Resume.pdf`,
+      filename: `${data.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`,
       image: { type: 'jpeg' as const, quality: 1.0 },
       html2canvas: { 
-        scale: 3, // Very high scale for crisp typography and lines
+        scale: 2.8, // Shaper text for professional printing
         useCORS: true, 
         letterRendering: true,
         scrollY: 0,
-        windowWidth: 816, // Pins rendering precisely to the resume container's width
+        windowWidth: 816, // Pins rendering precisely to our 816px container width
         backgroundColor: '#ffffff'
       },
       jsPDF: { unit: 'in' as const, format: 'a4' as const, orientation: 'portrait' as const, compress: true },
@@ -106,12 +106,12 @@ const App: React.FC = () => {
     };
 
     try {
-      // 800ms delay ensures complex layouts and external font weights are fully rendered
-      await new Promise(resolve => setTimeout(resolve, 800));
+      // Small pause to allow all styles and font weights to settle
+      await new Promise(resolve => setTimeout(resolve, 600));
       await html2pdf().set(opt).from(element).save();
     } catch (err) {
       console.error("PDF generation error:", err);
-      alert("Professional export failed. Please try again.");
+      alert("Failed to generate professional PDF. Please check your data.");
     } finally {
       setIsDownloading(false);
     }

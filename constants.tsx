@@ -76,8 +76,8 @@ export const INITIAL_RESUME_DATA: ResumeData = {
 export const INITIAL_STYLE: ResumeStyle = {
   font: ResumeFont.SANS,
   fontSize: 'medium',
-  lineSpacing: 1.4,
-  sectionSpacing: 1.2,
+  lineSpacing: 1.3, // Tighter default
+  sectionSpacing: 1.0, // Tighter default
   layout: ResumeLayout.SIDEBAR,
   accentColor: '#1a1a1a'
 };
@@ -91,7 +91,7 @@ export const ACCENT_COLORS = [
 ];
 
 export const FONT_SIZES = {
-  small: { base: 'text-[11px]', h1: 'text-xl', h2: 'text-base', h3: 'text-sm' },
-  medium: { base: 'text-[13px]', h1: 'text-2xl', h2: 'text-lg', h3: 'text-base' },
-  large: { base: 'text-[15px]', h1: 'text-3xl', h2: 'text-xl', h3: 'text-lg' }
+  small: { base: 'text-[10px]', h1: 'text-xl', h2: 'text-[13px]', h3: 'text-[12px]' },
+  medium: { base: 'text-[12px]', h1: 'text-2xl', h2: 'text-[16px]', h3: 'text-[14px]' },
+  large: { base: 'text-[14px]', h1: 'text-3xl', h2: 'text-[18px]', h3: 'text-[16px]' }
 };
