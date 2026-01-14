@@ -35,6 +35,13 @@ export interface Skill {
   items: string[];
 }
 
+export interface Project {
+  id: string;
+  name: string;
+  description: string;
+  link?: string;
+}
+
 export interface PersonalInfo {
   fullName: string;
   email: string;
@@ -50,6 +57,7 @@ export interface ResumeData {
   experience: Experience[];
   education: Education[];
   skills: Skill[];
+  projects: Project[];
   awards?: string[];
   certifications?: string[];
 }
@@ -75,4 +83,4 @@ export interface ResumeStyle {
   accentColor: string;
 }
 
-export type SectionType = 'summary' | 'experience' | 'education' | 'skills' | 'awards' | 'certifications';
+export type SectionType = 'summary' | 'experience' | 'education' | 'skills' | 'awards' | 'certifications' | 'projects';

@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { 
-  ResumeData, ResumeStyle, ResumeFont, ResumeLayout, Experience, Education, Skill 
+  ResumeData, ResumeStyle, ResumeFont, ResumeLayout, Experience, Education, Skill, Project 
 } from '../types';
 import { ACCENT_COLORS } from '../constants';
 import { 
@@ -15,7 +15,9 @@ import {
   GraduationCap, 
   Zap, 
   Palette,
-  Award
+  Award,
+  ExternalLink,
+  FolderRoot
 } from 'lucide-react';
 
 interface EditorPanelProps {
@@ -82,6 +84,22 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ data, setData, style, setStyl
     setData({ ...data, education: [newEdu, ...data.education] });
   };
 
+  const updateProject = (id: string, field: keyof Project, value: any) => {
+    setData({
+      ...data,
+      projects: data.projects.map(p => p.id === id ? { ...p, [field]: value } : p)
+    });
+  };
+
+  const removeProject = (id: string) => {
+    setData({ ...data, projects: data.projects.filter(p => p.id !== id) });
+  };
+
+  const addProject = () => {
+    const newProj: Project = { id: `proj-${Date.now()}`, name: "New Project", description: "Brief description", link: "" };
+    setData({ ...data, projects: [...data.projects, newProj] });
+  };
+
   const updateSkill = (id: string, field: keyof Skill, value: any) => {
     setData({
       ...data,
@@ -100,7 +118,6 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ data, setData, style, setStyl
 
   return (
     <div className="flex flex-col h-full bg-white border-r border-gray-200 w-[450px] shrink-0 overflow-hidden shadow-xl z-20">
-      {/* Tabs */}
       <div className="flex border-b border-gray-100 bg-gray-50/50">
         <button 
           onClick={() => setActiveTab('content')}
@@ -124,17 +141,16 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ data, setData, style, setStyl
                 <Input label="Full Name" value={data.personalInfo.fullName} onChange={v => updatePersonalInfo('fullName', v)} />
                 <Input label="Email Address" value={data.personalInfo.email} onChange={v => updatePersonalInfo('email', v)} />
                 <Input label="Phone Number" value={data.personalInfo.phone} onChange={v => updatePersonalInfo('phone', v)} />
-                <Input label="Current Location" value={data.personalInfo.location} onChange={v => updatePersonalInfo('location', v)} />
-                <Input label="LinkedIn Profile" value={data.personalInfo.linkedin || ''} onChange={v => updatePersonalInfo('linkedin', v)} />
-                <Input label="Portfolio / Website" value={data.personalInfo.website || ''} onChange={v => updatePersonalInfo('website', v)} />
+                <Input label="Location" value={data.personalInfo.location} onChange={v => updatePersonalInfo('location', v)} />
+                <Input label="LinkedIn" value={data.personalInfo.linkedin || ''} onChange={v => updatePersonalInfo('linkedin', v)} />
+                <Input label="Portfolio" value={data.personalInfo.website || ''} onChange={v => updatePersonalInfo('website', v)} />
               </div>
               <div className="mt-6">
                 <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Professional Summary</label>
                 <textarea 
-                  className="w-full border-2 border-gray-100 rounded-xl p-4 text-sm focus:border-black focus:ring-0 outline-none transition-all min-h-[120px] bg-white text-black shadow-inner"
+                  className="w-full border-2 border-gray-100 rounded-xl p-4 text-sm focus:border-black focus:ring-0 outline-none transition-all min-h-[100px] bg-white text-black shadow-inner"
                   value={data.personalInfo.summary}
                   onChange={e => updatePersonalInfo('summary', e.target.value)}
-                  placeholder="Tell us about your career goals and expertise..."
                 />
               </div>
             </Section>
@@ -148,17 +164,16 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ data, setData, style, setStyl
                     </button>
                     <div className="grid grid-cols-2 gap-4">
                       <Input label="Job Title" value={exp.position} onChange={v => updateExperience(exp.id, 'position', v)} />
-                      <Input label="Company Name" value={exp.company} onChange={v => updateExperience(exp.id, 'company', v)} />
+                      <Input label="Company" value={exp.company} onChange={v => updateExperience(exp.id, 'company', v)} />
                       <Input label="Start Date" value={exp.startDate} onChange={v => updateExperience(exp.id, 'startDate', v)} />
                       <Input label="End Date" value={exp.endDate} onChange={v => updateExperience(exp.id, 'endDate', v)} />
                     </div>
                     <div>
-                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Key Achievements (One per line)</label>
+                      <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Key Achievements</label>
                       <textarea 
-                        className="w-full border-2 border-gray-100 rounded-xl p-3 text-xs focus:border-black outline-none min-h-[100px] bg-white text-black shadow-inner"
+                        className="w-full border-2 border-gray-100 rounded-xl p-3 text-xs focus:border-black outline-none min-h-[80px] bg-white text-black shadow-inner"
                         value={exp.description.join('\n')}
                         onChange={e => updateExperience(exp.id, 'description', e.target.value.split('\n'))}
-                        placeholder="• Increased revenue by 20%..."
                       />
                     </div>
                   </div>
@@ -166,15 +181,38 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ data, setData, style, setStyl
               </div>
             </Section>
 
-            <Section title="Academic Background" icon={<GraduationCap className="w-4 h-4" />} onAdd={addEducation}>
+            <Section title="Projects" icon={<FolderRoot className="w-4 h-4" />} onAdd={addProject}>
+               <div className="space-y-6">
+                {data.projects.map((proj) => (
+                  <div key={proj.id} className="p-5 border-2 border-gray-50 rounded-2xl bg-gray-50/30 space-y-4 relative group hover:border-gray-200 transition-all">
+                    <button onClick={() => removeProject(proj.id)} className="absolute top-4 right-4 p-1.5 text-gray-300 hover:text-red-500 hover:bg-red-50 rounded-lg transition-all">
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                    <Input label="Project Name" value={proj.name} onChange={v => updateProject(proj.id, 'name', v)} />
+                    <Input label="URL / Link" value={proj.link || ''} onChange={v => updateProject(proj.id, 'link', v)} />
+                    <div className="mt-2">
+                       <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-2">Brief Description</label>
+                       <textarea 
+                        className="w-full border-2 border-gray-100 rounded-xl p-3 text-xs focus:border-black outline-none min-h-[60px] bg-white text-black shadow-inner"
+                        value={proj.description}
+                        onChange={e => updateProject(proj.id, 'description', e.target.value)}
+                        maxLength={150}
+                      />
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </Section>
+
+            <Section title="Education" icon={<GraduationCap className="w-4 h-4" />} onAdd={addEducation}>
               <div className="space-y-6">
                 {data.education.map((edu) => (
                   <div key={edu.id} className="p-5 border-2 border-gray-50 rounded-2xl bg-gray-50/30 space-y-4 relative hover:border-gray-200 transition-all">
                     <button onClick={() => removeEducation(edu.id)} className="absolute top-4 right-4 p-1.5 text-gray-300 hover:text-red-500 transition-all">
                       <Trash2 className="w-4 h-4" />
                     </button>
-                    <Input label="Institution Name" value={edu.institution} onChange={v => updateEducation(edu.id, 'institution', v)} />
-                    <Input label="Degree / Major" value={edu.degree} onChange={v => updateEducation(edu.id, 'degree', v)} />
+                    <Input label="Institution" value={edu.institution} onChange={v => updateEducation(edu.id, 'institution', v)} />
+                    <Input label="Degree" value={edu.degree} onChange={v => updateEducation(edu.id, 'degree', v)} />
                     <div className="grid grid-cols-2 gap-4">
                       <Input label="Start" value={edu.startDate} onChange={v => updateEducation(edu.id, 'startDate', v)} />
                       <Input label="End" value={edu.endDate} onChange={v => updateEducation(edu.id, 'endDate', v)} />
@@ -189,8 +227,8 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ data, setData, style, setStyl
                 {data.skills.map((skill) => (
                   <div key={skill.id} className="p-5 border-2 border-gray-50 rounded-2xl bg-gray-50/30 relative flex gap-4 items-start hover:border-gray-200 transition-all">
                     <div className="flex-1 space-y-4">
-                      <Input label="Skill Category" value={skill.category} onChange={v => updateSkill(skill.id, 'category', v)} />
-                      <Input label="Specific Skills (comma separated)" value={skill.items.join(', ')} onChange={v => updateSkill(skill.id, 'items', v.split(',').map(i => i.trim()))} />
+                      <Input label="Category" value={skill.category} onChange={v => updateSkill(skill.id, 'category', v)} />
+                      <Input label="Items" value={skill.items.join(', ')} onChange={v => updateSkill(skill.id, 'items', v.split(',').map(i => i.trim()))} />
                     </div>
                     <button onClick={() => removeSkill(skill.id)} className="p-1.5 text-gray-300 hover:text-red-500 transition-colors mt-6">
                       <Trash2 className="w-4 h-4" />
@@ -202,12 +240,17 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ data, setData, style, setStyl
 
             <Section title="Certifications & Awards" icon={<Award className="w-4 h-4" />}>
               <div className="space-y-4">
-                <p className="text-[10px] text-gray-400 font-medium italic">These will appear in the sidebar area if the layout supports it.</p>
+                 <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Honours & Awards</label>
+                 <textarea 
+                  className="w-full border-2 border-gray-100 rounded-xl p-4 text-sm focus:border-black outline-none bg-white text-black min-h-[80px] shadow-inner"
+                  value={data.awards?.join('\n') || ''}
+                  onChange={e => setData({ ...data, awards: e.target.value.split('\n').filter(l => l.trim() !== '') })}
+                />
+                <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">Certifications</label>
                 <textarea 
-                  className="w-full border-2 border-gray-100 rounded-xl p-4 text-sm focus:border-black outline-none bg-white text-black min-h-[120px] shadow-inner"
+                  className="w-full border-2 border-gray-100 rounded-xl p-4 text-sm focus:border-black outline-none bg-white text-black min-h-[80px] shadow-inner"
                   value={data.certifications?.join('\n') || ''}
                   onChange={e => setData({ ...data, certifications: e.target.value.split('\n').filter(l => l.trim() !== '') })}
-                  placeholder="AWS Solutions Architect&#10;Google Data Analytics&#10;Certified Scrum Master..."
                 />
               </div>
             </Section>
@@ -228,14 +271,6 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ data, setData, style, setStyl
                     title={c.name}
                   />
                 ))}
-                <div className="relative group">
-                   <input 
-                    type="color" 
-                    value={style.accentColor} 
-                    onChange={e => setStyle({ ...style, accentColor: e.target.value })}
-                    className="w-10 h-10 rounded-xl overflow-hidden border-2 border-gray-100 cursor-pointer p-0"
-                  />
-                </div>
               </div>
             </div>
 
@@ -243,16 +278,15 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ data, setData, style, setStyl
               <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6">Resume Layout</label>
               <div className="grid grid-cols-1 gap-4">
                 {[
-                  { id: ResumeLayout.STANDARD, label: 'Classic Corporate', desc: 'Single column, clean hierarchy.', icon: <Layout className="w-5 h-5" /> },
-                  { id: ResumeLayout.SIDEBAR, label: 'Modern Executive', desc: 'Information sidebar for skills & awards.', icon: <Layout className="rotate-90 w-5 h-5" /> },
-                  { id: ResumeLayout.MINIMAL, label: 'Tech Minimalist', desc: 'Focus on pure content and spacing.', icon: <Layout className="w-5 h-5" /> }
+                  { id: ResumeLayout.STANDARD, label: 'Classic Corporate', desc: 'Single column, clean hierarchy.' },
+                  { id: ResumeLayout.SIDEBAR, label: 'Modern Executive', desc: 'Information sidebar for skills & awards.' },
+                  { id: ResumeLayout.MINIMAL, label: 'Minimalist', desc: 'Extreme focus on white space.' }
                 ].map(l => (
                   <button 
                     key={l.id}
                     onClick={() => setStyle({ ...style, layout: l.id })}
                     className={`flex items-center gap-4 p-4 rounded-2xl border-2 transition-all text-left ${style.layout === l.id ? 'border-black bg-black text-white shadow-lg' : 'border-gray-100 hover:border-gray-300 bg-white'}`}
                   >
-                    <div className={`${style.layout === l.id ? 'bg-gray-800' : 'bg-gray-50'} p-3 rounded-xl`}>{l.icon}</div>
                     <div>
                       <p className="font-black text-sm uppercase tracking-wider">{l.label}</p>
                       <p className={`text-xs ${style.layout === l.id ? 'text-gray-400' : 'text-gray-500'}`}>{l.desc}</p>
@@ -267,16 +301,16 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ data, setData, style, setStyl
               <div className="space-y-6">
                 <div className="grid grid-cols-3 gap-3">
                   {[
-                    { id: ResumeFont.SANS, label: 'Sans-Serif' },
-                    { id: ResumeFont.SERIF, label: 'Elegant Serif' },
-                    { id: ResumeFont.MONO, label: 'Technical Mono' }
+                    { id: ResumeFont.SANS, label: 'Sans' },
+                    { id: ResumeFont.SERIF, label: 'Serif' },
+                    { id: ResumeFont.MONO, label: 'Mono' }
                   ].map(f => (
                     <button 
                       key={f.id}
                       onClick={() => setStyle({ ...style, font: f.id })}
                       className={`py-3 text-[10px] font-black uppercase tracking-widest rounded-xl border-2 transition-all ${style.font === f.id ? 'border-black bg-black text-white shadow-md' : 'border-gray-50 hover:border-gray-200 bg-white'}`}
                     >
-                      {f.label.split(' ')[0]}
+                      {f.label}
                     </button>
                   ))}
                 </div>
@@ -301,18 +335,6 @@ const EditorPanel: React.FC<EditorPanelProps> = ({ data, setData, style, setStyl
             <div className="pt-6 border-t border-gray-100">
               <label className="block text-[10px] font-black text-gray-400 uppercase tracking-widest mb-6">Spacing Control</label>
               <div className="space-y-8">
-                <div>
-                  <div className="flex justify-between mb-3 items-center">
-                    <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Line Height</span>
-                    <span className="text-xs font-black bg-black text-white px-2 py-0.5 rounded">{style.lineSpacing}</span>
-                  </div>
-                  <input 
-                    type="range" min="1" max="2" step="0.1" 
-                    value={style.lineSpacing} 
-                    onChange={e => setStyle({ ...style, lineSpacing: parseFloat(e.target.value) })}
-                    className="w-full accent-black cursor-pointer h-1.5 bg-gray-100 rounded-lg appearance-none"
-                  />
-                </div>
                 <div>
                   <div className="flex justify-between mb-3 items-center">
                     <span className="text-[10px] font-black uppercase tracking-widest text-gray-500">Section Padding</span>
@@ -345,7 +367,7 @@ const Section: React.FC<{ title: string; icon: React.ReactNode; children: React.
       </div>
       {onAdd && (
         <button onClick={onAdd} className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-gray-50 text-[10px] font-black uppercase tracking-widest hover:bg-black hover:text-white transition-all shadow-sm">
-          <Plus className="w-3 h-3" /> Add Item
+          <Plus className="w-3 h-3" /> Add
         </button>
       )}
     </div>
@@ -358,10 +380,9 @@ const Input: React.FC<{ label: string; value: string; onChange: (v: string) => v
     <label className="block text-[9px] font-black text-gray-400 uppercase tracking-widest ml-1">{label}</label>
     <input 
       type="text"
-      className="w-full border-2 border-gray-50 rounded-xl px-4 py-2.5 text-sm focus:border-black outline-none transition-all bg-white text-black shadow-sm placeholder:text-gray-200"
+      className="w-full border-2 border-gray-50 rounded-xl px-4 py-2.5 text-sm focus:border-black outline-none transition-all bg-white text-black shadow-sm"
       value={value}
       onChange={e => onChange(e.target.value)}
-      placeholder={`Enter ${label.toLowerCase()}...`}
     />
   </div>
 );

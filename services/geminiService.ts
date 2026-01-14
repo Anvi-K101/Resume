@@ -17,13 +17,13 @@ export const parseResumeFile = async (file: File, focus: CareerFocus = 'general'
   });
 
   const focusInstructions: Record<CareerFocus, string> = {
-    developer: "Optimize for Software Engineering roles. Group technical skills by stack (e.g., Frontend, Backend, DevOps). Focus on tech stacks, GitHub, and technical problem-solving.",
-    creator: "Optimize for Content Creation, Media, and Influencer roles. Emphasize social metrics, reach, engagement, platforms, and creative tools. Highlight portfolios and social handles.",
-    data: "Optimize for Data Science and Analytics roles. Emphasize ML models, statistics, Python/R, SQL, and data-driven business impact. Highlight data visualization and modeling skills.",
-    product: "Optimize for Product Management roles. Emphasize product roadmap, cross-functional leadership, user metrics, A/B testing, and strategy. Highlight stakeholder management.",
-    marketing: "Optimize for Marketing and Growth roles. Focus on SEO/SEM, campaign performance, brand growth, ROI, and marketing automation tools. Highlight lead generation and analytics.",
-    sales: "Optimize for Sales and Account Management roles. Highlighting targets, quotas, revenue growth, CRM tools (like Salesforce), and negotiation success.",
-    design: "Optimize for UI/UX and Creative roles. Focus on user research, prototyping tools (Figma, Adobe), design systems, and visual impact. Ensure portfolio links are prominent.",
+    developer: "Optimize for Software Engineering roles. Group technical skills by stack. Focus on projects with github links, tech stacks, and technical problem-solving.",
+    creator: "Optimize for Content Creation, Media, and Influencer roles. Emphasize social metrics and creative projects with links.",
+    data: "Optimize for Data Science roles. Emphasize ML models, statistics, and technical projects with data-driven impact.",
+    product: "Optimize for Product Management roles. Emphasize product lifecycle, metrics, and leadership projects.",
+    marketing: "Optimize for Marketing and Growth roles. Focus on campaign performance and conversion-oriented projects.",
+    sales: "Optimize for Sales and Account Management roles. Highlighting revenue growth and key accounts.",
+    design: "Optimize for UI/UX and Creative roles. Focus on prototyping, design systems, and portfolio projects with links.",
     general: "A balanced professional approach suitable for corporate and diverse industry applications. Maintain standard professional hierarchy."
   };
 
@@ -39,17 +39,17 @@ export const parseResumeFile = async (file: File, focus: CareerFocus = 'general'
             }
           },
           {
-            text: `You are a precision resume extraction engine. Your task is to extract EVERY SINGLE piece of information from the document without exception.
+            text: `You are a precision resume extraction engine. Your task is to extract EVERY SINGLE piece of information from the document.
             
             TARGET CAREER FOCUS: ${focus.toUpperCase()}
             ${focusInstructions[focus]}
 
             STRICT EXTRACTION RULES:
-            1. DO NOT summarize or skip any work experience. Extract all roles, dates, and locations exactly.
-            2. Extract EVERY bullet point from the experience sections as separate strings in the description array.
+            1. DO NOT summarize or skip any work experience. Extract all roles, dates, and locations.
+            2. Extract EVERY bullet point from experience as separate strings.
             3. Capture all education history, certifications, and honors/awards.
-            4. In the 'personalInfo.summary', write a professional summary (3-4 sentences) highly optimized for the ${focus} career path, using ONLY the facts from the provided data.
-            5. Ensure skills are categorized in a way that is relevant to the ${focus} industry.
+            4. IMPORTANT: Identify any standalone projects (name, description, and link if available).
+            5. In 'personalInfo.summary', write a professional summary (3 sentences) optimized for ${focus}.
 
             Return the response as a valid JSON object matching the requested schema.`
           }
@@ -109,6 +109,17 @@ export const parseResumeFile = async (file: File, focus: CareerFocus = 'general'
                 }
               }
             },
+            projects: {
+              type: Type.ARRAY,
+              items: {
+                type: Type.OBJECT,
+                properties: {
+                  name: { type: Type.STRING },
+                  description: { type: Type.STRING },
+                  link: { type: Type.STRING },
+                }
+              }
+            },
             awards: { type: Type.ARRAY, items: { type: Type.STRING } },
             certifications: { type: Type.ARRAY, items: { type: Type.STRING } },
           }
@@ -130,6 +141,7 @@ export const parseResumeFile = async (file: File, focus: CareerFocus = 'general'
       experience: addIds(parsed.experience),
       education: addIds(parsed.education),
       skills: addIds(parsed.skills),
+      projects: addIds(parsed.projects),
       awards: Array.isArray(parsed.awards) ? parsed.awards : [],
       certifications: Array.isArray(parsed.certifications) ? parsed.certifications : [],
     };

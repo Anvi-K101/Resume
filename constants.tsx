@@ -52,16 +52,33 @@ export const INITIAL_RESUME_DATA: ResumeData = {
     { id: 's1', category: "Languages", items: ["TypeScript", "JavaScript", "Python", "SQL"] },
     { id: 's2', category: "Frameworks", items: ["React", "Node.js", "Express", "Tailwind CSS"] }
   ],
-  awards: ["Employee of the Year (2022) - TechNova"],
+  projects: [
+    {
+      id: 'p1',
+      name: "Open-Source UI Library",
+      description: "A lightweight, accessible UI component library used by 500+ developers.",
+      link: "github.com/alexr/ui-kit"
+    },
+    {
+      id: 'p2',
+      name: "AI Portfolio Generator",
+      description: "Generates custom portfolios based on user LinkedIn profiles.",
+      link: "portfoliogen.ai"
+    }
+  ],
+  awards: [
+    "Employee of the Year (2022) - TechNova",
+    "State Math Olympiad Finalist (2014)"
+  ],
   certifications: ["AWS Certified Solutions Architect"]
 };
 
 export const INITIAL_STYLE: ResumeStyle = {
   font: ResumeFont.SANS,
   fontSize: 'medium',
-  lineSpacing: 1.5,
-  sectionSpacing: 1.5,
-  layout: ResumeLayout.STANDARD,
+  lineSpacing: 1.4,
+  sectionSpacing: 1.2,
+  layout: ResumeLayout.SIDEBAR,
   accentColor: '#1a1a1a'
 };
 
@@ -74,7 +91,7 @@ export const ACCENT_COLORS = [
 ];
 
 export const FONT_SIZES = {
-  small: { base: 'text-sm', h1: 'text-2xl', h2: 'text-lg', h3: 'text-base' },
-  medium: { base: 'text-base', h1: 'text-3xl', h2: 'text-xl', h3: 'text-lg' },
-  large: { base: 'text-lg', h1: 'text-4xl', h2: 'text-2xl', h3: 'text-xl' }
+  small: { base: 'text-[11px]', h1: 'text-xl', h2: 'text-base', h3: 'text-sm' },
+  medium: { base: 'text-[13px]', h1: 'text-2xl', h2: 'text-lg', h3: 'text-base' },
+  large: { base: 'text-[15px]', h1: 'text-3xl', h2: 'text-xl', h3: 'text-lg' }
 };
