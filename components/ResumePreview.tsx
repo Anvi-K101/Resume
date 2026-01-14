@@ -15,7 +15,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
   const size = FONT_SIZES[style.fontSize];
 
   const sectionStyle = {
-    marginBottom: `${style.sectionSpacing}rem`
+    marginBottom: `${style.sectionSpacing * 0.75}rem` // Slightly tighter for better fitting
   };
 
   const textStyle = {
@@ -24,8 +24,8 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
 
   const renderSectionHeader = (title: string, isSidebar: boolean = false) => (
     <h2 
-      className={`font-bold uppercase tracking-widest border-b pb-1 mb-3 ${isSidebar ? 'text-[10px]' : size.h2}`} 
-      style={{ borderColor: `${style.accentColor}40`, color: style.accentColor }}
+      className={`font-bold uppercase tracking-widest border-b pb-1 mb-2.5 ${isSidebar ? 'text-[10px]' : size.h2}`} 
+      style={{ borderColor: `${style.accentColor}30`, color: style.accentColor }}
     >
       {title}
     </h2>
@@ -53,12 +53,12 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
       {experience.length > 0 && (
         <section style={sectionStyle}>
           {renderSectionHeader("Experience")}
-          <div className="space-y-5">
+          <div className="space-y-4">
             {experience.map((exp) => (
-              <div key={exp.id} className="print:break-inside-avoid mb-4">
+              <div key={exp.id} className="print:break-inside-avoid mb-2">
                 <div className="flex justify-between items-baseline">
                   <h3 className={`${size.h3} font-bold`} style={{ color: style.accentColor }}>{exp.position}</h3>
-                  <span className="text-[11px] text-gray-500 font-bold uppercase tracking-tighter shrink-0 ml-4">{exp.startDate} – {exp.endDate}</span>
+                  <span className="text-[10px] text-gray-400 font-bold uppercase tracking-tighter shrink-0 ml-4">{exp.startDate} – {exp.endDate}</span>
                 </div>
                 <div className="flex justify-between items-baseline mb-1">
                   <span className="font-semibold text-gray-800 text-sm">{exp.company}</span>
@@ -81,7 +81,7 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
           <div className="space-y-4">
             {projects.map((proj) => (
               <div key={proj.id} className="print:break-inside-avoid">
-                <div className="flex justify-between items-baseline mb-1">
+                <div className="flex justify-between items-baseline mb-0.5">
                    <h3 className={`${size.h3} font-bold`} style={{ color: style.accentColor }}>{proj.name}</h3>
                    {proj.link && (
                      <a href={proj.link.startsWith('http') ? proj.link : `https://${proj.link}`} target="_blank" rel="noopener noreferrer" className="text-[10px] text-blue-600 hover:underline italic truncate max-w-[250px]">
@@ -96,16 +96,16 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
         </section>
       )}
 
-      <div className="grid grid-cols-2 gap-8 mt-6">
+      <div className="grid grid-cols-2 gap-8 mt-4">
         {education.length > 0 && (
           <section style={sectionStyle}>
             {renderSectionHeader("Education")}
-            <div className="space-y-4">
+            <div className="space-y-3">
               {education.map((edu) => (
                 <div key={edu.id} className="print:break-inside-avoid">
                   <h3 className="font-bold text-gray-800 text-sm">{edu.institution}</h3>
                   <p className="text-gray-600 italic text-xs">{edu.degree}</p>
-                  <p className="text-[10px] text-gray-400 uppercase tracking-tighter">{edu.startDate} – {edu.endDate}</p>
+                  <p className="text-[9px] text-gray-400 uppercase tracking-tighter">{edu.startDate} – {edu.endDate}</p>
                 </div>
               ))}
             </div>
@@ -130,41 +130,43 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
   );
 
   const renderSidebar = () => (
-    <div className={`relative grid grid-cols-[280px_1fr] bg-[#f9fafb] min-h-[1120px] print:min-h-0 shadow-sm print:shadow-none ${fontClass} ${size.base}`}>
+    <div className={`relative flex bg-white min-h-[1120px] print:min-h-0 shadow-sm print:shadow-none ${fontClass} ${size.base}`}>
       {/* 
-        To maintain sidebar background color across multiple PDF pages, 
-        we apply the background to the wrapper and white to the main column.
+        To fix sidebar background bleed in multi-page PDF generation, 
+        we use an absolute background layer that spans the full height.
       */}
-      <aside className="p-8 print:p-6 flex flex-col shrink-0 gap-8 z-10">
-        <div>
+      <div className="absolute top-0 left-0 bottom-0 w-[260px] bg-gray-50 border-r border-gray-100 z-0"></div>
+      
+      {/* Sidebar Content */}
+      <aside className="w-[260px] p-8 print:p-6 flex flex-col shrink-0 gap-7 z-10 relative">
+        <div className="mb-2">
           <h1 className="text-2xl font-bold mb-4 tracking-tight leading-tight" style={{ color: style.accentColor }}>{personalInfo.fullName}</h1>
-          <div className="space-y-2 text-[11px] text-gray-600">
-            {personalInfo.email && <p className="break-all"><span className="font-bold text-black text-[9px] uppercase tracking-wider block">Email</span>{personalInfo.email}</p>}
-            {personalInfo.phone && <p><span className="font-bold text-black text-[9px] uppercase tracking-wider block">Phone</span>{personalInfo.phone}</p>}
-            {personalInfo.location && <p><span className="font-bold text-black text-[9px] uppercase tracking-wider block">Location</span>{personalInfo.location}</p>}
-            {personalInfo.linkedin && <p className="break-all"><span className="font-bold text-black text-[9px] uppercase tracking-wider block">LinkedIn</span>{personalInfo.linkedin}</p>}
+          <div className="space-y-2.5 text-[11px] text-gray-600">
+            {personalInfo.email && <div className="break-all"><span className="font-bold text-black text-[9px] uppercase tracking-wider block mb-0.5">Email</span>{personalInfo.email}</div>}
+            {personalInfo.phone && <div><span className="font-bold text-black text-[9px] uppercase tracking-wider block mb-0.5">Phone</span>{personalInfo.phone}</div>}
+            {personalInfo.location && <div><span className="font-bold text-black text-[9px] uppercase tracking-wider block mb-0.5">Location</span>{personalInfo.location}</div>}
+            {personalInfo.linkedin && <div className="break-all"><span className="font-bold text-black text-[9px] uppercase tracking-wider block mb-0.5">LinkedIn</span>{personalInfo.linkedin}</div>}
           </div>
         </div>
 
-        {/* Projects Section in Sidebar */}
         {projects.length > 0 && (
           <div className="print:break-inside-avoid">
             {renderSectionHeader("Projects", true)}
-            <div className="space-y-5">
+            <div className="space-y-4">
               {projects.map((proj) => (
-                <div key={proj.id} className="mb-2">
-                  <div className="flex items-center gap-1.5 mb-1">
+                <div key={proj.id} className="mb-3">
+                  <div className="flex items-center gap-1.5 mb-0.5">
                     <p className="text-xs font-bold text-gray-800">{proj.name}</p>
                     {proj.link && (
-                      <a href={proj.link.startsWith('http') ? proj.link : `https://${proj.link}`} target="_blank" rel="noopener noreferrer" className="text-gray-400 hover:text-blue-600 transition-colors">
+                      <a href={proj.link.startsWith('http') ? proj.link : `https://${proj.link}`} target="_blank" rel="noopener noreferrer" className="text-blue-500 hover:text-blue-700 transition-colors">
                         <ExternalLink className="w-3 h-3" />
                       </a>
                     )}
                   </div>
-                  <p className="text-[10px] text-gray-500 leading-snug mb-1">{proj.description}</p>
+                  <p className="text-[10px] text-gray-500 leading-tight mb-1">{proj.description}</p>
                   {proj.link && (
-                    <a href={proj.link.startsWith('http') ? proj.link : `https://${proj.link}`} target="_blank" rel="noopener noreferrer" className="text-[9px] text-blue-600/70 block truncate italic font-medium hover:underline">
-                      {proj.link.replace(/^https?:\/\//, '')}
+                    <a href={proj.link.startsWith('http') ? proj.link : `https://${proj.link}`} target="_blank" rel="noopener noreferrer" className="text-[9px] text-blue-600 block truncate italic font-medium hover:underline">
+                      {proj.link.replace(/^https?:\/\//, '').replace(/^www\./, '')}
                     </a>
                   )}
                 </div>
@@ -173,11 +175,10 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
           </div>
         )}
 
-        {/* Honours & Awards in Sidebar */}
         {(awards?.length || 0) > 0 && (
           <div className="print:break-inside-avoid">
             {renderSectionHeader("Honours & Awards", true)}
-            <ul className="space-y-3">
+            <ul className="space-y-2.5">
               {awards?.map((award, idx) => award.trim() && (
                 <li key={idx} className="text-[10px] text-gray-700 leading-snug flex gap-2">
                    <div className="mt-1.5 w-1 h-1 rounded-full shrink-0" style={{ backgroundColor: style.accentColor }}></div>
@@ -217,17 +218,17 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
       </aside>
 
       {/* Main Column */}
-      <main className="p-10 print:p-8 flex flex-col min-h-full bg-white relative z-10">
+      <main className="flex-1 p-10 print:p-8 flex flex-col min-h-full bg-white relative z-10">
         {personalInfo.summary && (
-          <section className="mb-8 print:break-inside-avoid">
+          <section className="mb-7 print:break-inside-avoid">
             {renderSectionHeader("Executive Summary")}
             <p className="text-gray-700 leading-relaxed text-[13px]" style={textStyle}>{personalInfo.summary}</p>
           </section>
         )}
 
-        <section className="mb-8 flex-1">
+        <section className="mb-7 flex-1">
           {renderSectionHeader("Professional Experience")}
-          <div className="space-y-8">
+          <div className="space-y-6">
             {experience.map((exp) => (
               <div key={exp.id} className="print:break-inside-avoid">
                 <div className="flex justify-between items-start mb-1">
@@ -235,9 +236,9 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
                     <h4 className="font-bold text-base leading-tight" style={{ color: style.accentColor }}>{exp.position}</h4>
                     <p className="text-sm text-gray-800 font-semibold">{exp.company}</p>
                   </div>
-                  <span className="text-[10px] font-bold text-gray-400 shrink-0 ml-4 uppercase tracking-tighter bg-gray-50 px-2 py-0.5 rounded-md border border-gray-100">{exp.startDate} – {exp.endDate}</span>
+                  <span className="text-[9px] font-bold text-gray-400 shrink-0 ml-4 uppercase tracking-tighter bg-gray-50 px-2 py-0.5 rounded border border-gray-100">{exp.startDate} – {exp.endDate}</span>
                 </div>
-                <ul className="list-disc ml-5 space-y-1 text-gray-600 text-[13px]" style={textStyle}>
+                <ul className="list-disc ml-5 space-y-0.5 text-gray-600 text-[13px]" style={textStyle}>
                   {exp.description.map((bullet, idx) => bullet.trim() && (
                     <li key={idx} className="print:break-inside-avoid pl-1">{bullet}</li>
                   ))}
@@ -248,11 +249,11 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
         </section>
 
         {(certifications?.length || 0) > 0 && (
-          <section className="print:break-inside-avoid pt-6 border-t border-gray-100 mt-4">
+          <section className="print:break-inside-avoid pt-5 border-t border-gray-100 mt-4">
             {renderSectionHeader("Certifications")}
-            <div className="flex flex-wrap gap-x-4 gap-y-2">
+            <div className="flex flex-wrap gap-x-3 gap-y-1.5">
               {certifications?.map((cert, idx) => cert.trim() && (
-                <div key={idx} className="text-[11px] text-gray-600 font-medium px-2 py-1 bg-gray-50 rounded border border-gray-100">
+                <div key={idx} className="text-[10px] text-gray-600 font-medium px-2 py-0.5 bg-gray-50 rounded border border-gray-100">
                    {cert}
                 </div>
               ))}
@@ -267,7 +268,6 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
     <div 
       id="resume-document" 
       className="mx-auto bg-white shadow-2xl rounded-sm overflow-hidden w-full max-w-[816px] border border-gray-100 print:w-full print:max-w-none print:border-none print:rounded-none"
-      style={{ minHeight: '1056px' }}
     >
       <div className="h-full">
         {style.layout === ResumeLayout.STANDARD && renderStandard()}
@@ -275,19 +275,22 @@ const ResumePreview: React.FC<ResumePreviewProps> = ({ data, style }) => {
         {style.layout === ResumeLayout.MINIMAL && renderStandard()}
       </div>
       <style>{`
-        /* CSS to fix sidebar background bleed across pages in html2pdf */
+        /* Essential print fixes for multi-page alignment */
         #resume-document {
           position: relative;
+          box-sizing: border-box;
         }
-        /* Page break controls */
         section {
-          break-inside: avoid;
-          page-break-inside: avoid;
+          break-inside: avoid !important;
+          page-break-inside: avoid !important;
         }
         .print\\:break-inside-avoid {
-          break-inside: avoid;
-          page-break-inside: avoid;
+          break-inside: avoid !important;
+          page-break-inside: avoid !important;
         }
+        /* Ensure background graphics are included in print by library */
+        -webkit-print-color-adjust: exact;
+        print-color-adjust: exact;
       `}</style>
     </div>
   );
