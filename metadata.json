@@ -1,0 +1,5 @@
+{
+  "name": "ResuMaster AI",
+  "description": "A professional, minimal resume builder that extracts information from your existing documents and generates a polished, ATS-friendly resume.",
+  "requestFramePermissions": []
+}
