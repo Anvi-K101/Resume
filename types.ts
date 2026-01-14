@@ -1,4 +1,14 @@
 
+export type CareerFocus = 
+  | 'general' 
+  | 'developer' 
+  | 'creator' 
+  | 'data' 
+  | 'product' 
+  | 'marketing' 
+  | 'sales' 
+  | 'design';
+
 export interface Experience {
   id: string;
   company: string;

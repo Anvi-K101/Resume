@@ -1,15 +1,30 @@
 
 import React, { useState, useEffect } from 'react';
-import { Download, RefreshCw, ArrowLeft, Briefcase, AlertTriangle } from 'lucide-react';
+import { 
+  Download, 
+  RefreshCw, 
+  ArrowLeft, 
+  Briefcase, 
+  AlertTriangle, 
+  Code, 
+  Play, 
+  User, 
+  Database, 
+  Box, 
+  TrendingUp, 
+  DollarSign, 
+  PenTool 
+} from 'lucide-react';
 import FileUploader from './components/FileUploader';
 import EditorPanel from './components/EditorPanel';
 import ResumePreview from './components/ResumePreview';
-import { ResumeData, ResumeStyle } from './types';
+import { ResumeData, ResumeStyle, CareerFocus } from './types';
 import { INITIAL_RESUME_DATA, INITIAL_STYLE } from './constants';
 import { parseResumeFile } from './services/geminiService';
 
 const App: React.FC = () => {
   const [view, setView] = useState<'upload' | 'editor'>('upload');
+  const [careerFocus, setCareerFocus] = useState<CareerFocus>('general');
   const [data, setData] = useState<ResumeData>(INITIAL_RESUME_DATA);
   const [style, setStyle] = useState<ResumeStyle>(INITIAL_STYLE);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -21,11 +36,10 @@ const App: React.FC = () => {
     return setInterval(() => {
       setProgress(prev => {
         if (prev >= 98) return prev;
-        // Progress curve: fast start, slows down as it approaches 100
-        const increment = prev < 30 ? 5 : (prev < 70 ? 1.5 : (prev < 90 ? 0.5 : 0.1));
+        const increment = prev < 30 ? 6 : (prev < 70 ? 2 : (prev < 90 ? 0.6 : 0.1));
         return Math.min(prev + increment, 98);
       });
-    }, 150);
+    }, 120);
   };
 
   const handleFileProcessed = async (file: File) => {
@@ -35,11 +49,10 @@ const App: React.FC = () => {
     const intervalId = simulateProgress();
     
     try {
-      const parsedData = await parseResumeFile(file);
+      const parsedData = await parseResumeFile(file, careerFocus);
       clearInterval(intervalId);
       setProgress(100);
       
-      // Using a short delay to let the user see the "100%" state before transition
       setTimeout(() => {
         setData(parsedData);
         setView('editor');
@@ -47,8 +60,7 @@ const App: React.FC = () => {
       }, 400);
     } catch (err: any) {
       clearInterval(intervalId);
-      console.error("Processing Error:", err);
-      setError(err.message || "Something went wrong during analysis. Please try a different file.");
+      setError(err.message || "Something went wrong during analysis.");
       setIsProcessing(false);
       setProgress(0);
     }
@@ -83,18 +95,48 @@ const App: React.FC = () => {
   if (view === 'upload') {
     return (
       <div className="min-h-screen flex flex-col items-center justify-between p-6 bg-[#fcfcfc] bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
-        <div className="max-w-4xl w-full flex-1 flex flex-col justify-center">
-          <header className="text-center mb-16">
-            <div className="inline-flex items-center justify-center w-24 h-24 bg-black text-white rounded-[2.5rem] mb-10 shadow-2xl shadow-black/20 ring-8 ring-gray-50/50">
-              <Briefcase className="w-12 h-12" />
+        <div className="max-w-4xl w-full flex-1 flex flex-col justify-center py-12">
+          <header className="text-center mb-10">
+            <div className="inline-flex items-center justify-center w-20 h-20 bg-black text-white rounded-[2rem] mb-6 shadow-2xl shadow-black/20 ring-8 ring-gray-50/50 transform hover:scale-105 transition-transform cursor-default">
+              <Briefcase className="w-10 h-10" />
             </div>
-            <h1 className="text-6xl font-black tracking-tighter text-gray-900 mb-6 uppercase italic">Elite Career Engine</h1>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed font-bold tracking-tight">
-              AI-driven resume synthesis. We extract every professional milestone from your existing profile with surgical precision.
+            <h1 className="text-5xl font-black tracking-tighter text-gray-900 mb-4 uppercase italic">Elite Career Engine</h1>
+            <p className="text-lg text-gray-400 max-w-xl mx-auto leading-relaxed font-bold tracking-tight">
+              AI-driven synthesis for high-performance resumes.
             </p>
           </header>
 
+          <div className="max-w-3xl mx-auto w-full mb-12">
+             <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.4em] mb-6 text-center">Step 1: Choose Your Career Path</label>
+             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                {[
+                  { id: 'general', label: 'General', icon: <User className="w-4 h-4" /> },
+                  { id: 'developer', label: 'Software', icon: <Code className="w-4 h-4" /> },
+                  { id: 'data', label: 'Data', icon: <Database className="w-4 h-4" /> },
+                  { id: 'product', label: 'Product', icon: <Box className="w-4 h-4" /> },
+                  { id: 'marketing', label: 'Marketing', icon: <TrendingUp className="w-4 h-4" /> },
+                  { id: 'sales', label: 'Sales', icon: <DollarSign className="w-4 h-4" /> },
+                  { id: 'design', label: 'Creative', icon: <PenTool className="w-4 h-4" /> },
+                  { id: 'creator', label: 'Creator', icon: <Play className="w-4 h-4" /> }
+                ].map((focus) => (
+                  <button
+                    key={focus.id}
+                    onClick={() => setCareerFocus(focus.id as CareerFocus)}
+                    className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all group ${careerFocus === focus.id ? 'border-black bg-black text-white shadow-xl scale-105 z-10' : 'border-gray-100 bg-white hover:border-gray-300 text-gray-400 hover:text-gray-900'}`}
+                  >
+                    <div className={`p-2 rounded-lg transition-colors ${careerFocus === focus.id ? 'bg-white/10' : 'bg-gray-50 group-hover:bg-gray-100'}`}>
+                      {focus.icon}
+                    </div>
+                    <span className="text-[9px] font-black uppercase tracking-widest">{focus.label}</span>
+                  </button>
+                ))}
+             </div>
+          </div>
+
           <div className="relative">
+            <div className="mb-6 text-center">
+              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.4em]">Step 2: Upload Your History</label>
+            </div>
             <FileUploader 
               onFileProcessed={handleFileProcessed} 
               isProcessing={isProcessing} 
@@ -103,12 +145,12 @@ const App: React.FC = () => {
             
             {error && (
               <div className="mt-8 p-8 bg-red-50 border-2 border-red-100 rounded-[2.5rem] flex flex-col items-center text-center max-w-xl mx-auto animate-in fade-in slide-in-from-bottom-6">
-                <AlertTriangle className="w-12 h-12 text-red-500 mb-4" />
+                <AlertTriangle className="w-10 h-10 text-red-500 mb-4" />
                 <h3 className="font-black uppercase tracking-widest text-red-900 mb-2">Analysis Failed</h3>
                 <p className="text-red-700 text-sm mb-8 font-medium leading-relaxed">{error}</p>
                 <div className="flex gap-4">
                   <button onClick={startManually} className="px-8 py-4 bg-red-900 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-red-800 transition-all shadow-lg">Start Manually</button>
-                  <button onClick={() => setError(null)} className="px-8 py-4 bg-white border-2 border-red-100 text-red-900 font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-gray-50 transition-all">Retry Upload</button>
+                  <button onClick={() => setError(null)} className="px-8 py-4 bg-white border-2 border-red-100 text-red-900 font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-gray-50 transition-all">Retry</button>
                 </div>
               </div>
             )}
@@ -125,14 +167,14 @@ const App: React.FC = () => {
             )}
           </div>
 
-          <footer className="mt-24 pt-12 border-t border-gray-100 flex justify-center gap-20 text-[10px] text-gray-400 font-black uppercase tracking-[0.3em] no-print">
-            <div className="flex items-center gap-3"><div className="w-2.5 h-2.5 rounded-full bg-black"></div>Zero Omission</div>
-            <div className="flex items-center gap-3"><div className="w-2.5 h-2.5 rounded-full bg-black"></div>Gemini Flash</div>
-            <div className="flex items-center gap-3"><div className="w-2.5 h-2.5 rounded-full bg-black"></div>ATS Ready</div>
+          <footer className="mt-20 pt-10 border-t border-gray-100 flex justify-center gap-16 text-[10px] text-gray-400 font-black uppercase tracking-[0.3em] no-print">
+            <div className="flex items-center gap-3"><div className="w-2 h-2 rounded-full bg-black"></div>Full Data Capture</div>
+            <div className="flex items-center gap-3"><div className="w-2 h-2 rounded-full bg-black"></div>Role Optimized</div>
+            <div className="flex items-center gap-3"><div className="w-2 h-2 rounded-full bg-black"></div>ATS Compliant</div>
           </footer>
         </div>
-        <footer className="py-12 text-xs font-black tracking-[0.5em] text-gray-300 uppercase no-print flex flex-col items-center gap-4">
-          <div className="h-px w-16 bg-gray-100 mb-4"></div>
+        <footer className="py-8 text-xs font-black tracking-[0.5em] text-gray-300 uppercase no-print flex flex-col items-center gap-4">
+          <div className="h-px w-12 bg-gray-100 mb-2"></div>
           Made by Anvi
         </footer>
       </div>
@@ -163,7 +205,7 @@ const App: React.FC = () => {
         <div className="flex items-center gap-10">
           <div className="hidden lg:flex items-center gap-4 text-[10px] font-black text-gray-300 tracking-[0.2em] uppercase">
             <span className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_12px_rgba(34,197,94,0.6)]"></span>
-            Analysis Complete
+            Analysis: {careerFocus.toUpperCase()}
           </div>
           <button 
             onClick={handleExportPDF}

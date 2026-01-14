@@ -1,11 +1,10 @@
 
 import { GoogleGenAI, Type } from "@google/genai";
-import { ResumeData } from "../types";
+import { ResumeData, CareerFocus } from "../types";
 
-export const parseResumeFile = async (file: File): Promise<ResumeData> => {
+export const parseResumeFile = async (file: File, focus: CareerFocus = 'general'): Promise<ResumeData> => {
   const ai = new GoogleGenAI({ apiKey: process.env.API_KEY });
   
-  // Convert file to base64
   const base64Data = await new Promise<string>((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);
@@ -14,10 +13,20 @@ export const parseResumeFile = async (file: File): Promise<ResumeData> => {
       const base64String = result.split(',')[1];
       resolve(base64String);
     };
-    reader.onerror = () => reject(new Error("Failed to read the file. Please check permissions."));
+    reader.onerror = () => reject(new Error("Failed to read the file."));
   });
 
-  // Using gemini-3-flash-preview for lower latency and better handling of large structured extractions
+  const focusInstructions: Record<CareerFocus, string> = {
+    developer: "Optimize for Software Engineering roles. Group technical skills by stack (e.g., Frontend, Backend, DevOps). Focus on tech stacks, GitHub, and technical problem-solving.",
+    creator: "Optimize for Content Creation, Media, and Influencer roles. Emphasize social metrics, reach, engagement, platforms, and creative tools. Highlight portfolios and social handles.",
+    data: "Optimize for Data Science and Analytics roles. Emphasize ML models, statistics, Python/R, SQL, and data-driven business impact. Highlight data visualization and modeling skills.",
+    product: "Optimize for Product Management roles. Emphasize product roadmap, cross-functional leadership, user metrics, A/B testing, and strategy. Highlight stakeholder management.",
+    marketing: "Optimize for Marketing and Growth roles. Focus on SEO/SEM, campaign performance, brand growth, ROI, and marketing automation tools. Highlight lead generation and analytics.",
+    sales: "Optimize for Sales and Account Management roles. Highlighting targets, quotas, revenue growth, CRM tools (like Salesforce), and negotiation success.",
+    design: "Optimize for UI/UX and Creative roles. Focus on user research, prototyping tools (Figma, Adobe), design systems, and visual impact. Ensure portfolio links are prominent.",
+    general: "A balanced professional approach suitable for corporate and diverse industry applications. Maintain standard professional hierarchy."
+  };
+
   try {
     const response = await ai.models.generateContent({
       model: 'gemini-3-flash-preview',
@@ -25,19 +34,22 @@ export const parseResumeFile = async (file: File): Promise<ResumeData> => {
         parts: [
           {
             inlineData: {
-              // Ensure we have a valid mime type, fallback to application/pdf
               mimeType: file.type || 'application/pdf',
               data: base64Data
             }
           },
           {
-            text: `You are a precision resume extraction engine. Analyze the provided document and extract EVERY single detail. 
+            text: `You are a precision resume extraction engine. Your task is to extract EVERY SINGLE piece of information from the document without exception.
+            
+            TARGET CAREER FOCUS: ${focus.toUpperCase()}
+            ${focusInstructions[focus]}
 
-            CRITICAL:
-            1. DO NOT omit any work history or education entries.
-            2. Extract every bullet point as a string in the description array.
-            3. Capture all certifications and awards.
-            4. If personal details like LinkedIn or phone are present, include them.
+            STRICT EXTRACTION RULES:
+            1. DO NOT summarize or skip any work experience. Extract all roles, dates, and locations exactly.
+            2. Extract EVERY bullet point from the experience sections as separate strings in the description array.
+            3. Capture all education history, certifications, and honors/awards.
+            4. In the 'personalInfo.summary', write a professional summary (3-4 sentences) highly optimized for the ${focus} career path, using ONLY the facts from the provided data.
+            5. Ensure skills are categorized in a way that is relevant to the ${focus} industry.
 
             Return the response as a valid JSON object matching the requested schema.`
           }
@@ -105,16 +117,12 @@ export const parseResumeFile = async (file: File): Promise<ResumeData> => {
     });
 
     const jsonStr = response.text;
-    if (!jsonStr) {
-      throw new Error("The AI returned an empty response. Please try again with a different file.");
-    }
+    if (!jsonStr) throw new Error("Empty AI response.");
 
     const parsed = JSON.parse(jsonStr);
-    
-    // Safety check for ID generation and array types
     const addIds = (items: any[]) => (Array.isArray(items) ? items : []).map((item, idx) => ({ 
       ...item, 
-      id: item.id || `item-${Date.now()}-${idx}-${Math.random().toString(36).substr(2, 5)}` 
+      id: item.id || `item-${Date.now()}-${idx}` 
     }));
     
     return {
@@ -126,13 +134,7 @@ export const parseResumeFile = async (file: File): Promise<ResumeData> => {
       certifications: Array.isArray(parsed.certifications) ? parsed.certifications : [],
     };
   } catch (e: any) {
-    console.error("Gemini Parsing/Extraction Error:", e);
-    
-    // Specific error handling for common Gemini issues
-    if (e.message?.includes("Rpc failed") || e.message?.includes("fetch")) {
-      throw new Error("Connection failed: The file might be too large for the current network limits, or the service is temporarily unavailable. Try a smaller file or copy-pasting the text into a .txt file.");
-    }
-    
-    throw new Error(e.message || "Failed to extract data. The document structure may be unsupported.");
+    console.error("Gemini Error:", e);
+    throw new Error(e.message || "Failed to extract resume data.");
   }
 };
