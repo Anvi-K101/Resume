@@ -38,11 +38,11 @@ const App: React.FC = () => {
     setProgress(0);
     return setInterval(() => {
       setProgress(prev => {
-        if (prev >= 98) return prev;
-        const increment = prev < 30 ? 6 : (prev < 70 ? 2 : (prev < 90 ? 0.6 : 0.1));
-        return Math.min(prev + increment, 98);
+        if (prev >= 99) return prev;
+        const increment = prev < 40 ? 4 : (prev < 80 ? 1 : (prev < 95 ? 0.3 : 0.05));
+        return Math.min(prev + increment, 99);
       });
-    }, 120);
+    }, 100);
   };
 
   const handleFileProcessed = async (file: File) => {
@@ -60,10 +60,10 @@ const App: React.FC = () => {
         setData(parsedData);
         setView('editor');
         setIsProcessing(false);
-      }, 400);
+      }, 500);
     } catch (err: any) {
       clearInterval(intervalId);
-      setError(err.message || "Something went wrong during analysis.");
+      setError(err.message || "The AI engine encountered an issue while synthesizing your career data. Please try again or start with a blank canvas.");
       setIsProcessing(false);
       setProgress(0);
     }
@@ -71,7 +71,7 @@ const App: React.FC = () => {
 
   const startManually = () => {
     setData({
-      personalInfo: { fullName: "", email: "", phone: "", location: "", summary: "" },
+      personalInfo: { fullName: "Your Full Name", email: "", phone: "", location: "", summary: "" },
       experience: [],
       education: [],
       skills: [],
@@ -88,37 +88,47 @@ const App: React.FC = () => {
 
     setIsDownloading(true);
 
-    // High fidelity settings optimized for 2-3 pages
+    // Optimized settings for High Fidelity Multi-Page Output
     const opt = {
       margin: 0,
-      filename: `${data.personalInfo.fullName.replace(/\s+/g, '_')}_Resume.pdf`,
+      filename: `${data.personalInfo.fullName.replace(/\s+/g, '_')}_Resume_ResuMaster.pdf`,
       image: { type: 'jpeg' as const, quality: 1.0 },
       html2canvas: { 
-        scale: 2.8, // Shaper text for professional printing
+        scale: 3, // Premium sharpness for printing
         useCORS: true, 
         letterRendering: true,
         scrollY: 0,
-        windowWidth: 816, // Pins rendering precisely to our 816px container width
-        backgroundColor: '#ffffff'
+        windowWidth: 816, // Pins to standard 8.5" width at 96dpi
+        backgroundColor: '#ffffff',
+        logging: false
       },
-      jsPDF: { unit: 'in' as const, format: 'a4' as const, orientation: 'portrait' as const, compress: true },
-      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] as const }
+      jsPDF: { 
+        unit: 'in' as const, 
+        format: 'a4' as const, 
+        orientation: 'portrait' as const, 
+        compress: true,
+        putOnlyUsedFonts: true
+      },
+      pagebreak: { 
+        mode: ['avoid-all', 'css', 'legacy'] as const,
+        before: '.page-break-before'
+      }
     };
 
     try {
-      // Small pause to allow all styles and font weights to settle
-      await new Promise(resolve => setTimeout(resolve, 600));
+      // Allow DOM to settle and images to be fully buffered
+      await new Promise(resolve => setTimeout(resolve, 800));
       await html2pdf().set(opt).from(element).save();
     } catch (err) {
-      console.error("PDF generation error:", err);
-      alert("Failed to generate professional PDF. Please check your data.");
+      console.error("PDF Export failed:", err);
+      alert("Elite synthesis failed during export. Please try using a different layout or font size.");
     } finally {
       setIsDownloading(false);
     }
   };
 
   const startOver = () => {
-    if (window.confirm("Return to home? Unsaved changes will be lost.")) {
+    if (window.confirm("Return to home? Current synthesis will be lost unless exported.")) {
       setView('upload');
       setData(INITIAL_RESUME_DATA);
       setError(null);
@@ -129,48 +139,48 @@ const App: React.FC = () => {
 
   if (view === 'upload') {
     return (
-      <div className="min-h-screen flex flex-col items-center justify-between p-6 bg-[#fcfcfc] bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px]">
-        <div className="max-w-4xl w-full flex-1 flex flex-col justify-center py-12">
-          <header className="text-center mb-10">
-            <div className="inline-flex items-center justify-center w-20 h-20 bg-black text-white rounded-[2rem] mb-6 shadow-2xl shadow-black/20 ring-8 ring-gray-50/50 transform hover:scale-105 transition-transform cursor-default">
-              <Briefcase className="w-10 h-10" />
+      <div className="min-h-screen flex flex-col items-center justify-between p-8 bg-[#fcfcfc] bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:24px_24px]">
+        <div className="max-w-4xl w-full flex-1 flex flex-col justify-center py-16">
+          <header className="text-center mb-12">
+            <div className="inline-flex items-center justify-center w-24 h-24 bg-black text-white rounded-[2.5rem] mb-8 shadow-2xl shadow-black/30 ring-8 ring-gray-100/50 transform hover:scale-105 transition-all cursor-default">
+              <Briefcase className="w-12 h-12" />
             </div>
-            <h1 className="text-5xl font-black tracking-tighter text-gray-900 mb-4 uppercase italic">Elite Career Engine</h1>
-            <p className="text-lg text-gray-400 max-w-xl mx-auto leading-relaxed font-bold tracking-tight">
-              AI-driven synthesis for high-performance resumes.
+            <h1 className="text-6xl font-black tracking-tighter text-gray-900 mb-6 uppercase italic">Career Engine Elite</h1>
+            <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed font-bold tracking-tight px-4">
+              Upload your history. Let the AI synthesize a high-performance, ATS-compliant multi-page resume.
             </p>
           </header>
 
-          <div className="max-w-3xl mx-auto w-full mb-12">
-             <label className="block text-[10px] font-black text-gray-400 uppercase tracking-[0.4em] mb-6 text-center">Step 1: Choose Your Career Path</label>
-             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="max-w-4xl mx-auto w-full mb-16 px-4">
+             <label className="block text-[11px] font-black text-gray-400 uppercase tracking-[0.5em] mb-8 text-center">I. Select Strategic Focus</label>
+             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
                 {[
-                  { id: 'general', label: 'General', icon: <User className="w-4 h-4" /> },
-                  { id: 'developer', label: 'Software', icon: <Code className="w-4 h-4" /> },
-                  { id: 'data', label: 'Data', icon: <Database className="w-4 h-4" /> },
-                  { id: 'product', label: 'Product', icon: <Box className="w-4 h-4" /> },
-                  { id: 'marketing', label: 'Marketing', icon: <TrendingUp className="w-4 h-4" /> },
-                  { id: 'sales', label: 'Sales', icon: <DollarSign className="w-4 h-4" /> },
-                  { id: 'design', label: 'Creative', icon: <PenTool className="w-4 h-4" /> },
-                  { id: 'creator', label: 'Creator', icon: <Play className="w-4 h-4" /> }
+                  { id: 'general', label: 'Executive', icon: <User className="w-5 h-5" /> },
+                  { id: 'developer', label: 'Engineering', icon: <Code className="w-5 h-5" /> },
+                  { id: 'data', label: 'Data Science', icon: <Database className="w-5 h-5" /> },
+                  { id: 'product', label: 'Product', icon: <Box className="w-5 h-5" /> },
+                  { id: 'marketing', label: 'Marketing', icon: <TrendingUp className="w-5 h-5" /> },
+                  { id: 'sales', label: 'Sales/BD', icon: <DollarSign className="w-5 h-5" /> },
+                  { id: 'design', label: 'UI/UX Design', icon: <PenTool className="w-5 h-5" /> },
+                  { id: 'creator', label: 'Media/Content', icon: <Play className="w-5 h-5" /> }
                 ].map((focus) => (
                   <button
                     key={focus.id}
                     onClick={() => setCareerFocus(focus.id as CareerFocus)}
-                    className={`flex flex-col items-center gap-2 p-4 rounded-2xl border-2 transition-all group ${careerFocus === focus.id ? 'border-black bg-black text-white shadow-xl scale-105 z-10' : 'border-gray-100 bg-white hover:border-gray-300 text-gray-400 hover:text-gray-900'}`}
+                    className={`flex flex-col items-center gap-3 p-5 rounded-[2rem] border-2 transition-all group relative overflow-hidden ${careerFocus === focus.id ? 'border-black bg-black text-white shadow-2xl scale-105 z-10' : 'border-gray-100 bg-white hover:border-gray-400 text-gray-400 hover:text-gray-900 shadow-sm'}`}
                   >
-                    <div className={`p-2 rounded-lg transition-colors ${careerFocus === focus.id ? 'bg-white/10' : 'bg-gray-50 group-hover:bg-gray-100'}`}>
+                    <div className={`p-3 rounded-xl transition-colors ${careerFocus === focus.id ? 'bg-white/10' : 'bg-gray-50 group-hover:bg-gray-100'}`}>
                       {focus.icon}
                     </div>
-                    <span className="text-[9px] font-black uppercase tracking-widest">{focus.label}</span>
+                    <span className="text-[10px] font-black uppercase tracking-widest">{focus.label}</span>
                   </button>
                 ))}
              </div>
           </div>
 
-          <div className="relative">
-            <div className="mb-6 text-center">
-              <label className="text-[10px] font-black text-gray-400 uppercase tracking-[0.4em]">Step 2: Upload Your History</label>
+          <div className="relative px-4">
+            <div className="mb-8 text-center">
+              <label className="text-[11px] font-black text-gray-400 uppercase tracking-[0.5em]">II. Initiate Document Scanning</label>
             </div>
             <FileUploader 
               onFileProcessed={handleFileProcessed} 
@@ -179,86 +189,80 @@ const App: React.FC = () => {
             />
             
             {error && (
-              <div className="mt-8 p-8 bg-red-50 border-2 border-red-100 rounded-[2.5rem] flex flex-col items-center text-center max-w-xl mx-auto animate-in fade-in slide-in-from-bottom-6">
-                <AlertTriangle className="w-10 h-10 text-red-500 mb-4" />
-                <h3 className="font-black uppercase tracking-widest text-red-900 mb-2">Analysis Failed</h3>
-                <p className="text-red-700 text-sm mb-8 font-medium leading-relaxed">{error}</p>
-                <div className="flex gap-4">
-                  <button onClick={startManually} className="px-8 py-4 bg-red-900 text-white font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-red-800 transition-all shadow-lg">Start Manually</button>
-                  <button onClick={() => setError(null)} className="px-8 py-4 bg-white border-2 border-red-100 text-red-900 font-black uppercase tracking-widest text-[10px] rounded-2xl hover:bg-gray-50 transition-all">Retry</button>
+              <div className="mt-10 p-10 bg-red-50 border-2 border-red-100 rounded-[3rem] flex flex-col items-center text-center max-w-2xl mx-auto animate-in fade-in slide-in-from-bottom-8">
+                <AlertTriangle className="w-12 h-12 text-red-500 mb-6" />
+                <h3 className="font-black uppercase tracking-widest text-red-900 mb-3 text-lg">Synthesis Interrupted</h3>
+                <p className="text-red-700 text-base mb-10 font-medium leading-relaxed max-w-lg">{error}</p>
+                <div className="flex gap-6">
+                  <button onClick={startManually} className="px-10 py-5 bg-red-900 text-white font-black uppercase tracking-widest text-[11px] rounded-2xl hover:bg-red-800 transition-all shadow-xl active:scale-95">Manual Entry</button>
+                  <button onClick={() => setError(null)} className="px-10 py-5 bg-white border-2 border-red-100 text-red-900 font-black uppercase tracking-widest text-[11px] rounded-2xl hover:bg-gray-50 transition-all shadow-md">Retry Scan</button>
                 </div>
               </div>
             )}
             
             {!isProcessing && !error && (
-               <div className="mt-10 text-center">
+               <div className="mt-12 text-center">
                   <button 
                     onClick={startManually}
-                    className="text-[10px] font-black uppercase tracking-[0.4em] text-gray-300 hover:text-black transition-all flex items-center justify-center gap-3 mx-auto group"
+                    className="text-[11px] font-black uppercase tracking-[0.5em] text-gray-300 hover:text-black transition-all flex items-center justify-center gap-4 mx-auto group"
                   >
-                    Start with a blank canvas <ArrowLeft className="w-4 h-4 rotate-180 group-hover:translate-x-1 transition-transform" />
+                    Bypass AI - Start Blank <ArrowLeft className="w-5 h-5 rotate-180 group-hover:translate-x-2 transition-transform" />
                   </button>
                </div>
             )}
           </div>
-
-          <footer className="mt-20 pt-10 border-t border-gray-100 flex justify-center gap-16 text-[10px] text-gray-400 font-black uppercase tracking-[0.3em] no-print">
-            <div className="flex items-center gap-3"><div className="w-2 h-2 rounded-full bg-black"></div>Full Data Capture</div>
-            <div className="flex items-center gap-3"><div className="w-2 h-2 rounded-full bg-black"></div>Role Optimized</div>
-            <div className="flex items-center gap-3"><div className="w-2 h-2 rounded-full bg-black"></div>ATS Compliant</div>
-          </footer>
         </div>
-        <footer className="py-8 text-xs font-black tracking-[0.5em] text-gray-300 uppercase no-print flex flex-col items-center gap-4">
-          <div className="h-px w-12 bg-gray-100 mb-2"></div>
-          Made by Anvi
+        <footer className="py-10 text-xs font-black tracking-[0.8em] text-gray-300 uppercase no-print flex flex-col items-center gap-6">
+          <div className="h-px w-20 bg-gray-100 mb-2"></div>
+          Precision Built by Anvi
         </footer>
       </div>
     );
   }
 
   return (
-    <div className="h-screen flex flex-col bg-gray-50 font-['Inter',sans-serif]">
-      {/* Header */}
-      <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-10 shrink-0 z-30 no-print">
-        <div className="flex items-center gap-8">
+    <div className="h-screen flex flex-col bg-[#fafafa] font-['Inter',sans-serif]">
+      {/* Dynamic Header */}
+      <header className="h-24 bg-white border-b border-gray-100 flex items-center justify-between px-12 shrink-0 z-30 no-print shadow-sm">
+        <div className="flex items-center gap-10">
           <button 
             onClick={startOver}
-            className="group flex items-center gap-3 p-3 hover:bg-gray-50 rounded-2xl text-gray-400 hover:text-black transition-all"
+            className="group flex items-center gap-4 p-4 hover:bg-gray-50 rounded-2xl text-gray-400 hover:text-black transition-all"
           >
-            <ArrowLeft className="w-6 h-6 group-hover:-translate-x-1 transition-transform" />
-            <span className="text-[10px] font-black uppercase tracking-[0.2em] hidden md:inline">Exit Engine</span>
+            <ArrowLeft className="w-7 h-7 group-hover:-translate-x-1.5 transition-transform" />
+            <span className="text-[11px] font-black uppercase tracking-[0.3em] hidden xl:inline">Return to Hub</span>
           </button>
-          <div className="h-8 w-px bg-gray-100"></div>
-          <h2 className="text-xs font-black tracking-[0.3em] uppercase flex items-center gap-4">
-            <div className="bg-black text-white p-2.5 rounded-2xl shadow-2xl shadow-black/20">
-              <Briefcase className="w-4 h-4" />
+          <div className="h-10 w-px bg-gray-100"></div>
+          <h2 className="text-sm font-black tracking-[0.4em] uppercase flex items-center gap-5">
+            <div className="bg-black text-white p-3 rounded-2xl shadow-xl shadow-black/20">
+              <Briefcase className="w-5 h-5" />
             </div>
             Elite Resume Canvas
           </h2>
         </div>
 
-        <div className="flex items-center gap-10">
-          <div className="hidden lg:flex items-center gap-4 text-[10px] font-black text-gray-300 tracking-[0.2em] uppercase">
-            <span className="w-2.5 h-2.5 rounded-full bg-green-500 shadow-[0_0_12px_rgba(34,197,94,0.6)]"></span>
-            Analysis: {careerFocus.toUpperCase()}
+        <div className="flex items-center gap-12">
+          <div className="hidden lg:flex items-center gap-5 text-[11px] font-black text-gray-300 tracking-[0.3em] uppercase">
+            <span className="w-3 h-3 rounded-full bg-green-500 shadow-[0_0_15px_rgba(34,197,94,0.7)]"></span>
+            Mode: {careerFocus.toUpperCase()} STRATEGY
           </div>
           <button 
             onClick={handleExportPDF}
             disabled={isDownloading}
-            className={`flex items-center gap-3 bg-black text-white px-10 py-4 rounded-[1.25rem] text-[10px] font-black hover:bg-gray-800 transition-all shadow-2xl shadow-black/10 uppercase tracking-[0.2em] transform active:scale-95 ${isDownloading ? 'opacity-50 cursor-not-allowed' : ''}`}
+            className={`flex items-center gap-4 bg-black text-white px-12 py-5 rounded-[1.5rem] text-[11px] font-black hover:bg-gray-800 transition-all shadow-2xl shadow-black/20 uppercase tracking-[0.3em] transform active:scale-95 ${isDownloading ? 'opacity-60 cursor-not-allowed' : ''}`}
           >
             {isDownloading ? (
-              <><RefreshCw className="w-4 h-4 animate-spin" /> Finalizing PDF...</>
+              <><RefreshCw className="w-5 h-5 animate-spin" /> Slicing Pages...</>
             ) : (
-              <><Download className="w-4 h-4" /> Download PDF</>
+              <><Download className="w-5 h-5" /> Export PDF</>
             )}
           </button>
         </div>
       </header>
 
-      {/* Main Content */}
+      {/* Workspace */}
       <div className="flex-1 flex overflow-hidden">
-        <div className="no-print h-full shadow-2xl z-20">
+        <div className="no-print h-full shadow-[20px_0_40px_-20px_rgba(0,0,0,0.05)] z-20">
           <EditorPanel 
             data={data} 
             setData={setData} 
@@ -267,27 +271,29 @@ const App: React.FC = () => {
           />
         </div>
         
-        <div className="flex-1 overflow-y-auto bg-gray-50 p-16 scrollbar-hide relative">
-          <div className="max-w-[850px] mx-auto pb-32">
-            <div className="mb-8 flex justify-between items-center text-[9px] text-gray-400 font-black uppercase tracking-[0.5em] px-6 no-print">
-              <div className="flex items-center gap-3">
-                <div className="w-2 h-2 rounded-full bg-gray-300"></div>
-                Canvas Preview
+        <div className="flex-1 overflow-y-auto bg-[#fafafa] p-16 xl:p-24 scrollbar-hide relative">
+          <div className="max-w-[816px] mx-auto pb-48">
+            <div className="mb-10 flex justify-between items-center text-[10px] text-gray-400 font-black uppercase tracking-[0.6em] px-8 no-print">
+              <div className="flex items-center gap-4">
+                <div className="w-2.5 h-2.5 rounded-full bg-gray-200"></div>
+                High-Fidelity Preview
               </div>
-              <div className="flex items-center gap-3 text-black">
-                <RefreshCw className="w-3.5 h-3.5 animate-spin-slow" />
-                Auto-Updating
+              <div className="flex items-center gap-4 text-black bg-white/50 px-4 py-2 rounded-full border border-gray-100 backdrop-blur-sm">
+                <RefreshCw className="w-4 h-4 animate-spin-slow" />
+                Live Sync Active
               </div>
             </div>
             
-            <div className="relative group">
-               <div className="absolute -inset-6 bg-black/[0.03] rounded-[3rem] blur-3xl group-hover:bg-black/[0.06] transition-all -z-10 no-print"></div>
-               <ResumePreview data={data} style={style} />
+            <div className="relative group transition-all duration-700">
+               <div className="absolute -inset-10 bg-black/[0.02] rounded-[4rem] blur-3xl group-hover:bg-black/[0.05] transition-all -z-10 no-print"></div>
+               <div className="rounded-sm overflow-visible bg-white ring-1 ring-gray-100 shadow-xl">
+                  <ResumePreview data={data} style={style} />
+               </div>
             </div>
 
-            <div className="mt-20 text-center text-gray-300 text-[10px] font-black uppercase tracking-[0.5em] no-print flex flex-col items-center gap-6">
-               <div className="w-12 h-px bg-gray-200"></div>
-               Made by Anvi • ResuMaster AI 2025
+            <div className="mt-24 text-center text-gray-300 text-[11px] font-black uppercase tracking-[0.6em] no-print flex flex-col items-center gap-8">
+               <div className="w-16 h-px bg-gray-200"></div>
+               Elite Synthesis Engine • ResuMaster AI v2.5
             </div>
           </div>
         </div>
@@ -296,7 +302,7 @@ const App: React.FC = () => {
       <style>{`
         @media print {
           @page {
-            size: A4;
+            size: A4 portrait;
             margin: 0;
           }
           html, body {
@@ -306,6 +312,7 @@ const App: React.FC = () => {
             padding: 0;
             width: 100%;
           }
+          .no-print { display: none !important; }
         }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
@@ -313,7 +320,19 @@ const App: React.FC = () => {
           from { transform: rotate(0deg); }
           to { transform: rotate(360deg); }
         }
-        .animate-spin-slow { animation: spin-slow 12s linear infinite; }
+        .animate-spin-slow { animation: spin-slow 15s linear infinite; }
+        
+        /* Custom styling for standard range inputs */
+        input[type=range]::-webkit-slider-thumb {
+          -webkit-appearance: none;
+          height: 20px;
+          width: 20px;
+          border-radius: 50%;
+          background: #000;
+          cursor: pointer;
+          border: 4px solid #fff;
+          box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
       `}</style>
     </div>
   );

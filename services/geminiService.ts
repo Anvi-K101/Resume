@@ -17,14 +17,14 @@ export const parseResumeFile = async (file: File, focus: CareerFocus = 'general'
   });
 
   const focusInstructions: Record<CareerFocus, string> = {
-    developer: "Optimize for Software Engineering roles. Group technical skills by stack. Focus on projects with github links, tech stacks, and technical problem-solving.",
-    creator: "Optimize for Content Creation, Media, and Influencer roles. Emphasize social metrics and creative projects with links.",
-    data: "Optimize for Data Science roles. Emphasize ML models, statistics, and technical projects with data-driven impact.",
-    product: "Optimize for Product Management roles. Emphasize product lifecycle, metrics, and leadership projects.",
-    marketing: "Optimize for Marketing and Growth roles. Focus on campaign performance and conversion-oriented projects.",
-    sales: "Optimize for Sales and Account Management roles. Highlighting revenue growth and key accounts.",
-    design: "Optimize for UI/UX and Creative roles. Focus on prototyping, design systems, and portfolio projects with links.",
-    general: "A balanced professional approach suitable for corporate and diverse industry applications. Maintain standard professional hierarchy."
+    developer: "Optimize for Software Engineering roles. Group technical skills by stack. Focus on projects with github links, tech stacks, and technical problem-solving. Use industry-standard tech keywords.",
+    creator: "Optimize for Content Creation, Media, and Influencer roles. Emphasize social metrics, platform reach, and creative projects with links. Use dynamic, high-energy language.",
+    data: "Optimize for Data Science roles. Emphasize ML models, statistics, and technical projects with data-driven impact. Highlight tools like Python, R, and SQL.",
+    product: "Optimize for Product Management roles. Emphasize product lifecycle, metrics, and leadership projects. Focus on 'outcome over output'.",
+    marketing: "Optimize for Marketing and Growth roles. Focus on campaign performance, conversion-oriented projects, and brand strategy.",
+    sales: "Optimize for Sales and Account Management roles. Highlighting revenue growth, quota attainment, and key accounts.",
+    design: "Optimize for UI/UX and Creative roles. Focus on prototyping, design systems, and portfolio projects with links. Highlight design thinking process.",
+    general: "A balanced professional approach suitable for corporate and diverse industry applications. Maintain standard professional hierarchy and formal tone."
   };
 
   try {
@@ -39,19 +39,21 @@ export const parseResumeFile = async (file: File, focus: CareerFocus = 'general'
             }
           },
           {
-            text: `You are a precision resume extraction engine. Your task is to extract EVERY SINGLE piece of information from the document.
+            text: `You are a world-class senior executive resume writer. Your task is to extract EVERY SINGLE detail from the attached document and reformat it for a high-impact professional resume.
             
             TARGET CAREER FOCUS: ${focus.toUpperCase()}
             ${focusInstructions[focus]}
 
-            STRICT EXTRACTION RULES:
-            1. DO NOT summarize or skip any work experience. Extract all roles, dates, and locations.
-            2. Extract EVERY bullet point from experience as separate strings.
-            3. Capture all education history, certifications, and honors/awards.
-            4. IMPORTANT: Identify any standalone projects (name, description, and link if available).
-            5. In 'personalInfo.summary', write a professional summary (3 sentences) optimized for ${focus}.
+            STRICT EXTRACTION AND EXPANSION RULES:
+            1. COMPLETE EXTRACTION: Do not omit any employer, date, or role. If the document is long, ensure the output reflects that length (aiming for 2-3 pages worth of high-quality content if data is present).
+            2. BULLET POINT EXPANSION: For each experience item, extract every bullet. If bullets are brief, expand them using the STAR method (Situation, Task, Action, Result) relevant to ${focus}, but stay true to the original facts.
+            3. PROJECTS: Prioritize a dedicated 'projects' section. Capture project names, 2-sentence impact-driven descriptions, and any links.
+            4. PROFESSIONAL SUMMARY: Write a compelling, 4-sentence professional summary at the start, tailored to the ${focus} role.
+            5. SKILLS: Categorize skills logically (e.g., 'Languages', 'Tools', 'Frameworks').
+            6. EDUCATION: Include institution, degree, location, and dates. Include GPA or Honors if visible.
+            7. AWARDS & CERTIFICATIONS: Capture every single certification and honor mentioned.
 
-            Return the response as a valid JSON object matching the requested schema.`
+            Structure the response as a valid JSON object matching the requested schema.`
           }
         ]
       },
@@ -131,9 +133,11 @@ export const parseResumeFile = async (file: File, focus: CareerFocus = 'general'
     if (!jsonStr) throw new Error("Empty AI response.");
 
     const parsed = JSON.parse(jsonStr);
-    const addIds = (items: any[]) => (Array.isArray(items) ? items : []).map((item, idx) => ({ 
+    
+    const generateId = () => `item-${Math.random().toString(36).substr(2, 9)}`;
+    const addIds = (items: any[]) => (Array.isArray(items) ? items : []).map((item) => ({ 
       ...item, 
-      id: item.id || `item-${Date.now()}-${idx}` 
+      id: item.id || generateId()
     }));
     
     return {
