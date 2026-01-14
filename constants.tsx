@@ -20,9 +20,8 @@ export const INITIAL_RESUME_DATA: ResumeData = {
       endDate: "Present",
       description: [
         "Led the migration of a legacy monolithic frontend to a modern micro-frontend architecture using React and Module Federation.",
-        "Optimized application performance, reducing initial load time by 40% through code-splitting and asset optimization.",
-        "Mentored a team of 4 junior developers and established code quality standards with automated linting and testing.",
-        "Collaborated with UX designers to implement a comprehensive design system adopted across three major product lines."
+        "Optimized application performance, reducing initial load time by 40%.",
+        "Mentored a team of 4 junior developers and established code quality standards."
       ]
     },
     {
@@ -34,9 +33,8 @@ export const INITIAL_RESUME_DATA: ResumeData = {
       endDate: "2020-12",
       description: [
         "Developed and maintained RESTful APIs using Node.js and Express, serving over 100k daily active users.",
-        "Implemented real-time data visualization dashboards using D3.js, providing stakeholders with actionable insights.",
-        "Optimized database queries in PostgreSQL, reducing average response time by 25%.",
-        "Configured CI/CD pipelines using GitHub Actions, decreasing deployment time by 50%."
+        "Implemented real-time data visualization dashboards using D3.js.",
+        "Collaborated with product teams to define technical requirements and roadmaps."
       ]
     }
   ],
@@ -51,37 +49,35 @@ export const INITIAL_RESUME_DATA: ResumeData = {
     }
   ],
   skills: [
-    { id: 's1', category: "Frontend Stack", items: ["React", "TypeScript", "Next.js", "Tailwind CSS", "Redux", "GraphQL"] },
-    { id: 's2', category: "Backend & DevOps", items: ["Node.js", "Express", "PostgreSQL", "AWS", "Docker", "Kubernetes"] },
-    { id: 's3', category: "Tools & Workflow", items: ["Git", "Jest", "Cypress", "Agile/Scrum", "Figma", "Jira"] }
+    { id: 's1', category: "Languages", items: ["TypeScript", "JavaScript", "Python", "SQL"] },
+    { id: 's2', category: "Frameworks", items: ["React", "Node.js", "Express", "Tailwind CSS"] }
   ],
   projects: [
     {
       id: 'p1',
       name: "Open-Source UI Library",
-      description: "A lightweight, accessible UI component library built with React and Tailwind CSS, currently used by 500+ developers.",
+      description: "A lightweight, accessible UI component library used by 500+ developers.",
       link: "github.com/alexr/ui-kit"
     },
     {
       id: 'p2',
       name: "AI Portfolio Generator",
-      description: "A specialized tool that generates custom portfolios based on user LinkedIn profiles using GPT-4 API.",
+      description: "Generates custom portfolios based on user LinkedIn profiles.",
       link: "portfoliogen.ai"
     }
   ],
   awards: [
-    "Employee of the Year (2022) - TechNova Solutions",
-    "First Place, State Hackathon for Social Good (2019)",
+    "Employee of the Year (2022) - TechNova",
     "State Math Olympiad Finalist (2014)"
   ],
-  certifications: ["AWS Certified Solutions Architect", "Professional Scrum Master I"]
+  certifications: ["AWS Certified Solutions Architect"]
 };
 
 export const INITIAL_STYLE: ResumeStyle = {
   font: ResumeFont.SANS,
   fontSize: 'medium',
-  lineSpacing: 1.4,
-  sectionSpacing: 1.2,
+  lineSpacing: 1.3, // Tighter default
+  sectionSpacing: 1.0, // Tighter default
   layout: ResumeLayout.SIDEBAR,
   accentColor: '#1a1a1a'
 };
