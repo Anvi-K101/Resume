@@ -255,14 +255,54 @@ const App: React.FC = () => {
 
       <style>{`
         @media print {
-          body * { visibility: hidden; background: white !important; }
-          #resume-document, #resume-document * { visibility: visible; }
+          @page {
+            size: A4;
+            margin: 0;
+          }
+          html, body {
+            height: auto;
+            background: white !important;
+            margin: 0;
+            padding: 0;
+            width: 100%;
+          }
+          #root {
+            height: auto;
+            min-height: auto;
+          }
+          body * { 
+            visibility: hidden; 
+            background: white !important; 
+            print-color-adjust: exact; 
+            -webkit-print-color-adjust: exact;
+          }
+          #resume-document, #resume-document * { 
+            visibility: visible; 
+          }
           #resume-document {
-            position: absolute; left: 0; top: 0; width: 100%;
-            box-shadow: none !important; border: none !important;
-            margin: 0 !important; padding: 0 !important;
+            position: absolute !important;
+            left: 0 !important;
+            top: 0 !important;
+            width: 100% !important;
+            height: auto !important;
+            min-height: auto !important;
+            box-shadow: none !important;
+            border: none !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            display: block !important;
           }
           .no-print { display: none !important; }
+          
+          /* Prevent items from being cut off between pages */
+          section, div[key], li {
+            break-inside: avoid;
+            page-break-inside: avoid;
+          }
+          h1, h2, h3 {
+            break-after: avoid;
+            page-break-after: avoid;
+          }
         }
         .scrollbar-hide::-webkit-scrollbar { display: none; }
         .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
